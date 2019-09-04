@@ -44,13 +44,19 @@ dat_svy <- as_survey_design(apiclus1, dnum, weights = pw, fpc = fpc)
 ```{r summarystats}
 
 #dplyr
-dat_dplyr %>% summarize(est = mean(api00), se = sd(api00)/sqrt(n())) %>% mutate(lci = est - 1.96 * se, uci = est + 1.96 *se)
+dat_dplyr %>% summarize(est = mean(api00), se = sd(api00)/sqrt(n())) %>% 
+  mutate(lci = est - 1.96 * se, uci = est + 1.96 *se)
 
 #data.table
-dat_dt[, .(est = mean(api00), se = sd(api00)/sqrt(.N))][, .(est, se, lci = (est - 1.96 * se), uci = (est + 1.96 * se))]
+dat_dt[
+         , .(est = mean(api00), se = sd(api00)/sqrt(.N))
+       ][ #chain the operations together-- couple all be 1 line
+         , .(est, se, lci = (est - 1.96 * se), uci = (est + 1.96 * se))
+        ]
 
 #srvyr
-dat_svy %>% summarize(est = survey_mean(api00), ci = survey_mean(api00, vartype = 'ci')[2:3]) %>% rename(se = est_se ,lci = ci_low, uci = ci_upp)
+dat_svy %>% summarize(est = survey_mean(api00), ci = survey_mean(api00, vartype = 'ci')[2:3]) %>%
+  rename(se = est_se ,lci = ci_low, uci = ci_upp)
 
 
 ```
@@ -59,10 +65,11 @@ dat_svy %>% summarize(est = survey_mean(api00), ci = survey_mean(api00, vartype 
 ```{r groupstats}
 
 #dplyr
-dat_dplyr %>% group_by(stype) %>% summarize(est = mean(api00), se = sd(api00)/sqrt(n()))
+dat_dplyr %>% group_by(stype) %>% 
+  summarize(est = mean(api00), se = sd(api00)/sqrt(n()))
 
 #data.table
-dat_dt[, .(est = mean(api00), se = sd(api00)/sqrt(.N)), by = 'stype']
+dat_dt[, .(est = mean(api00), se = sd(api00)/sqrt(.N)), keyby = 'stype']
 
 #srvyr
 dat_svy %>% group_by(stype) %>% summarize(est = survey_mean(api00))
@@ -74,17 +81,17 @@ dat_svy %>% group_by(stype) %>% summarize(est = survey_mean(api00))
 ```{r merge}
 #create two datasets to merge
 m_base <- data.frame(letter = c('A','A','B', 'C'))
-m_new <- data.frame(letter = c('A','B'), num = 1:2)
+m_new <- data.frame(letter = c('A','B', 'D'), num = 1:3)
 
 #basic merge (data.frame or data.table)
 merge(m_base, m_new, by = 'letter') #inner join
-merge(m_base, m_new, by = 'letter', all.X = T) #left join
-merge(m_base, m_new, by = 'latter', all =T)
+merge(m_base, m_new, by = 'letter', all.x = T) #left join
+merge(m_base, m_new, by = 'letter', all = T)
 
 ```
 
 
-# D: Some ways to recode variables in data.table
+# D: Some ways to recode variables (in data.table)
 ```{r recodes}
 
 #create a small dataset
@@ -120,15 +127,15 @@ if(t == 0){
 }
 
 #For loop
-list_to_iterate(1:3)
+list_to_iterate <- 1:3
 for(item in list_to_iterate){
-  item
+  print(item)
 }
 
 #while loop
 i = 1
 while(i < 4){
-  i
+  print(i)
   i <- i+1
 }
 
@@ -141,7 +148,7 @@ while(i < 4){
 funky = function() 'get jiggy with it'
 funky()
 
-dance = function(x) paste0(rep('D', x), 'ance')
+dance = function(x) rep('Dance', x)
 dance(1)
 dance(5)
 
