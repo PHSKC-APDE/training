@@ -1,4 +1,4 @@
-# Training Home Page
+# R Training Home Page
 
 ## [Resources](R_essential_capabilities.md#resources)
 * ### [*Example code to get you started*](example_index.md)
