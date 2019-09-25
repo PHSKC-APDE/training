@@ -1,0 +1,100 @@
+---
+title: "Spot check data"
+author: "Alastair Matheson (Assessment, Policy Development, and Evaluation Unit)"
+date: "9/11/2019"
+output: 
+  # md_document: default
+  # keep_md: yes
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
+```
+
+## Set up
+
+1) Load the libraries used in this tutorial
+
+```{r loadpacks}
+# Importing data
+library(data.table)
+
+# Data manipulation
+library(tidyverse)
+
+```
+
+2) Set up path to where the training data live
+* This makes the assumption that your working directory is the Github repo R_training.
+
+```{make_path}
+data_path <- file.path(getwd(), "dummy_data")
+```
+
+3) Bring in some data
+
+```{import_data}
+training_data_xl_boys <- read_xlsx(file.path(data_path, "r_training_data.xlsx"),
+                                   sheet = "boys_names", skip = 3)
+```
+
+
+## Data names and structure
+### Data names
+```{data_names}
+# See the names of each field in the data
+# Note that this imported data has messy names
+names(training_data_xl_boys)
+
+# Rename using dplyr's rename function
+# Format is new_name = old_name
+# Note use of `backticks` around names with invalid characters or spaces
+training_data_xl_boys <- training_data_xl_boys %>%
+  rename(rank = Rank...1,
+         first_name = `First Name...2`,
+         n = N...3,
+         pct = `%...4`,
+         cum_n = N...5,
+         cum_pct = `%...6`)
+```
+
+### Data structure
+```{data_structure}
+# See the types of each field in the data
+str(training_data_xl_boys)
+
+# Look at the first few rows of data (default is 6 rows)
+# Also shows the data type of each column
+head(training_data_xl_boys)
+# Show more rows
+head(training_data_xl_boys, n = 10)
+
+# Look at the last few rows of data
+tail(training_data_xl_boys)
+tail(training_data_xl_boys, 10)
+```
+
+### Look for columns with only missing data
+* A few ways to approach this.
+* The code below shows each field and the percent missing.
+* It uses summarise_all from the dplyr package.
+
+```{all_missing}
+summarise_all(training_data_xl_boys, list(~sum(is.na(.)) / nrow(training_data_xl_boys)))
+```
+
+### Drop unwanted columns
+* Use dplyr's select function.
+* Can use it to specify desired columns or columns to drop
+
+```{drop_cols}
+# Drop a specific column with the - prefix
+training_data_xl_boys <- training_data_xl_boys %>%
+  select(-`...7`)
+
+# Specify columns to include. Ranges can be shown with a :
+training_data_xl_boys <- training_data_xl_boys %>%
+  select(rank, first_name:cum_pct, N...12)
+
+```
