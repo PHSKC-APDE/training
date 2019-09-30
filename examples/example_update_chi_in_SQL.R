@@ -73,7 +73,3 @@ dbWriteTable(db_extract51,
 #### COPY DATA FROM SQL 51 (WIP) to SQL 50 (Production) ####
 # Only do this once data have passed QA!
 # (Example R code forthcoming; for now use "S:\WORK\CHI Visualizations\Table of contents\Update Tableau SQL prod server.sql" as template)
-
-
-
-
