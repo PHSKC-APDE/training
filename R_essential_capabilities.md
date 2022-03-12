@@ -6,17 +6,17 @@ This document sets out a list of R skills all APDE analysts should have. It also
 ### Cheatsheets
 Note: most of the cheat sheets have been saved in the APDE Training SharePoint site [here](https://kc1.sharepoint.com/teams/APDETraining/Shared%20Documents/Forms/AllItems.aspx?FolderCTID=0x012000F298778C9D54E2448DEC9C27C83FC5BB&amp;id=%2Fteams%2FAPDETraining%2FShared%20Documents%2FR):
 
-- Base R cheat sheet: [http://github.com/rstudio/cheatsheets/raw/master/base-r.pdf](http://github.com/rstudio/cheatsheets/raw/master/base-r.pdf)
-- R syntax cheat sheet: [https://github.com/rstudio/cheatsheets/raw/master/syntax.pdf](https://github.com/rstudio/cheatsheets/raw/master/syntax.pdf)
+- Base R cheat sheet: [http://github.com/rstudio/cheatsheets/raw/main/base-r.pdf](http://github.com/rstudio/cheatsheets/raw/main/base-r.pdf)
+- R syntax cheat sheet: [https://github.com/rstudio/cheatsheets/raw/main/syntax.pdf](https://github.com/rstudio/cheatsheets/raw/main/syntax.pdf)
 - Tidyverse and dplyr (Tidyverse) comparison code: [https://atrebas.github.io/post/2019-03-03-datatable-dplyr/](https://atrebas.github.io/post/2019-03-03-datatable-dplyr/)
 - Data table cheat sheet: [https://s3.amazonaws.com/assets.datacamp.com/blog\_assets/datatable\_Cheat\_Sheet\_R.pdf](https://s3.amazonaws.com/assets.datacamp.com/blog_assets/datatable_Cheat_Sheet_R.pdf)
-- Tidyverse: importing data cheat sheet (readr on page 1): [https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf](https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf)
-- Tidyverse: data transformation cheat sheet: [https://github.com/rstudio/cheatsheets/raw/master/data-transformation.pdf](https://github.com/rstudio/cheatsheets/raw/master/data-transformation.pdf)
-- Tidyverse: string manipulation cheat sheet: [https://github.com/rstudio/cheatsheets/raw/master/strings.pdf](https://github.com/rstudio/cheatsheets/raw/master/strings.pdf)
+- Tidyverse: importing data cheat sheet (readr on page 1): [https://github.com/rstudio/cheatsheets/raw/main/data-import.pdf](https://github.com/rstudio/cheatsheets/raw/main/data-import.pdf)
+- Tidyverse: data transformation cheat sheet: [https://github.com/rstudio/cheatsheets/raw/main/data-transformation.pdf](https://github.com/rstudio/cheatsheets/raw/main/data-transformation.pdf)
+- Tidyverse: string manipulation cheat sheet: [https://github.com/rstudio/cheatsheets/raw/main/strings.pdf](https://github.com/rstudio/cheatsheets/raw/main/strings.pdf)
 - Regular expressions cheat sheet: [https://www.rstudio.com/wp-content/uploads/2016/09/RegExCheatsheet.pdf](https://www.rstudio.com/wp-content/uploads/2016/09/RegExCheatsheet.pdf)
-- Tidyverse: dates and times cheat sheet: [https://github.com/rstudio/cheatsheets/raw/master/lubridate.pdf](https://github.com/rstudio/cheatsheets/raw/master/lubridate.pdf)
-- Tidyverse: reshape data cheat sheet (tidyr on page 2): [https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf](https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf)
-- purrr cheat sheet: [https://github.com/rstudio/cheatsheets/raw/master/purrr.pdf](https://github.com/rstudio/cheatsheets/raw/master/purrr.pdf)
+- Tidyverse: dates and times cheat sheet: [https://github.com/rstudio/cheatsheets/raw/main/lubridate.pdf](https://github.com/rstudio/cheatsheets/raw/main/lubridate.pdf)
+- Tidyverse: reshape data cheat sheet (tidyr on page 2): [https://github.com/rstudio/cheatsheets/raw/main/data-import.pdf](https://github.com/rstudio/cheatsheets/raw/main/data-import.pdf)
+- purrr cheat sheet: [https://github.com/rstudio/cheatsheets/raw/main/purrr.pdf](https://github.com/rstudio/cheatsheets/raw/main/purrr.pdf)
 - ggplot2 cheat sheet: [https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf)
 - Other cheat sheets: [https://www.rstudio.com/resources/cheatsheets/](https://www.rstudio.com/resources/cheatsheets/)
 
@@ -33,20 +33,20 @@ Note: most of the cheat sheets have been saved in the APDE Training SharePoint s
 - Intro to the apply family: [https://www.r-bloggers.com/using-apply-sapply-lapply-in-r/](https://www.r-bloggers.com/using-apply-sapply-lapply-in-r/)
 
 ## 1. Understand R syntax
-- Base R cheat sheet: [http://github.com/rstudio/cheatsheets/raw/master/base-r.pdf](http://github.com/rstudio/cheatsheets/raw/master/base-r.pdf)
-- R syntax cheat sheet: [https://github.com/rstudio/cheatsheets/raw/master/syntax.pdf](https://github.com/rstudio/cheatsheets/raw/master/syntax.pdf)
+- Base R cheat sheet: [http://github.com/rstudio/cheatsheets/raw/main/base-r.pdf](http://github.com/rstudio/cheatsheets/raw/main/base-r.pdf)
+- R syntax cheat sheet: [https://github.com/rstudio/cheatsheets/raw/main/syntax.pdf](https://github.com/rstudio/cheatsheets/raw/main/syntax.pdf)
 - Tidyverse and dplyr (Tidyverse) comparison code: [https://atrebas.github.io/post/2019-03-03-datatable-dplyr/](https://atrebas.github.io/post/2019-03-03-datatable-dplyr/)
 - R data types: [https://www.statmethods.net/input/datatypes.html](https://www.statmethods.net/input/datatypes.html)
 
 | Skill | Package used | Function |
 | --- | --- | --- |
-| Assign variables/objects | Base R | See [Base R cheat sheet](http://github.com/rstudio/cheatsheets/raw/master/base-r.pdf) |
-| Install and attach/load packages | Base R | See [Base R cheat sheet](http://github.com/rstudio/cheatsheets/raw/master/base-r.pdf) |
+| Assign variables/objects | Base R | See [Base R cheat sheet](http://github.com/rstudio/cheatsheets/raw/main/base-r.pdf) |
+| Install and attach/load packages | Base R | See [Base R cheat sheet](http://github.com/rstudio/cheatsheets/raw/main/base-r.pdf) |
 | Understand differences between Tidyverse and data.table syntax | Tidyverse/data.table | See comparison [webpage](https://atrebas.github.io/post/2019-03-03-datatable-dplyr/) |
 | Understand different object types (data frames, lists, vectors, etc.) | N/A | See web [resource](https://www.statmethods.net/input/datatypes.html) |
 
 ## 2. Import and export data
-- readr cheat sheet (on page 1): [https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf](https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf)
+- readr cheat sheet (on page 1): [https://github.com/rstudio/cheatsheets/raw/main/data-import.pdf](https://github.com/rstudio/cheatsheets/raw/main/data-import.pdf)
 - Intro to odbc: [https://db.rstudio.com/odbc/](https://db.rstudio.com/odbc/)
 
 | Skill | Package used | Function |
@@ -67,7 +67,7 @@ Note: most of the cheat sheets have been saved in the APDE Training SharePoint s
 
 ### *A. Add and remove variables/rows*
 
-dplyr cheat sheet: [https://github.com/rstudio/cheatsheets/raw/master/data-transformation.pdf](https://github.com/rstudio/cheatsheets/raw/master/data-transformation.pdf)
+dplyr cheat sheet: [https://github.com/rstudio/cheatsheets/raw/main/data-transformation.pdf](https://github.com/rstudio/cheatsheets/raw/main/data-transformation.pdf)
 
 | Skill | Package used | Function |
 | --- | --- | --- |
@@ -79,7 +79,7 @@ dplyr cheat sheet: [https://github.com/rstudio/cheatsheets/raw/master/data-trans
 
 ### *B. Work with strings*
 
-stringr cheat sheet: [https://github.com/rstudio/cheatsheets/raw/master/strings.pdf](https://github.com/rstudio/cheatsheets/raw/master/strings.pdf)
+stringr cheat sheet: [https://github.com/rstudio/cheatsheets/raw/main/strings.pdf](https://github.com/rstudio/cheatsheets/raw/main/strings.pdf)
 
 [regular expressions](https://stat.ethz.ch/R-manual/R-devel/library/base/html/regex.html) used with Base R commands can also be very powerful
 
@@ -92,13 +92,13 @@ stringr cheat sheet: [https://github.com/rstudio/cheatsheets/raw/master/strings.
 
 ### *C. Work with dates/times*
 
-lubridate cheat sheet: [https://github.com/rstudio/cheatsheets/raw/master/lubridate.pdf](https://github.com/rstudio/cheatsheets/raw/master/lubridate.pdf)
+lubridate cheat sheet: [https://github.com/rstudio/cheatsheets/raw/main/lubridate.pdf](https://github.com/rstudio/cheatsheets/raw/main/lubridate.pdf)
 
 | Skill | Package used | Function |
 | --- | --- | --- |
 | Convert variables to date | Base R | as.Date |
-| Obtain components of dates | lubridate | See [cheat sheet](https://github.com/rstudio/cheatsheets/raw/master/lubridate.pdf) |
-| Calculate durations and intervals | lubridate | See [cheat sheet](https://github.com/rstudio/cheatsheets/raw/master/lubridate.pdf) |
+| Obtain components of dates | lubridate | See [cheat sheet](https://github.com/rstudio/cheatsheets/raw/main/lubridate.pdf) |
+| Calculate durations and intervals | lubridate | See [cheat sheet](https://github.com/rstudio/cheatsheets/raw/main/lubridate.pdf) |
 
 ### *D. Reshape data*
 
@@ -116,7 +116,7 @@ Reshaping with data.table: [https://cran.r-project.org/web/packages/data.table/v
 ### *E. Run functions over multiple objects*
 Intro to the apply family: [https://www.r-bloggers.com/using-apply-sapply-lapply-in-r/](https://www.r-bloggers.com/using-apply-sapply-lapply-in-r/)
 
-purrr cheat sheet: [https://github.com/rstudio/cheatsheets/raw/master/purrr.pdf](https://github.com/rstudio/cheatsheets/raw/master/purrr.pdf)
+purrr cheat sheet: [https://github.com/rstudio/cheatsheets/raw/main/purrr.pdf](https://github.com/rstudio/cheatsheets/raw/main/purrr.pdf)
 
 | Skill | Package used | Function |
 | --- | --- | --- |
