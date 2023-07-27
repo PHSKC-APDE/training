@@ -23,10 +23,10 @@ pacman::p_load(tidyverse, rads, rads.data, openxlsx2, data.table, lubridate, sf,
 ##Set defaults
 options(max.print = 350, tibble.print_max = 50, scipen = 999)
 origin <- "1970-01-01" # Date origin
-export_path <- "C:/Users/kerneli/OneDrive - King County/" #replace with your desired path, use forward slashes
+export_path <- "C:/Users/REPLACE WITH YOUR USER NAME/OneDrive - King County/" #replace with your desired path, use forward slashes
 
 ##Set keyring for HHSAW connection (only need to run this once initially or whenever password or laptop changes)
-keyring::key_set('hhsaw', username = 'YOURUSERNAME@kingcounty.gov')
+keyring::key_set('hhsaw', username = 'REPLACE THIS TEXT WITH YOUR EMAIL ADDRESS')
 
 ##Create a test file for export
 test_df <- data.frame("col1" = 1, "col2" = 2, "col3" = 3)

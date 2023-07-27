@@ -17,10 +17,11 @@ options(max.print = 350) # Limit # of rows to show when printing/showing a data.
 options(tibble.print_max = 50) # Limit # of rows to show when printing/showing a tibble (a tidyverse-flavored data.frame)
 options(scipen = 999) # Avoid scientific notation
 origin <- "1970-01-01" # Set the origin date, which is needed for many data/time functions
-export_path <- "C:/Users/kerneli/OneDrive - King County/" # Replace with your desired path, use forward slashes
+export_path <- "C:/Users/REPLACE WITH YOUR USER NAME/OneDrive - King County/" # Replace with your desired path, use forward slashes
 
 ##Set keyring for HHSAW connection (only need to run this when password or laptop changes)
-#keyring::key_set('hhsaw', username = 'eli.kern@kingcounty.gov')
+#keyring::key_set('hhsaw', username = 'REPLACE THIS TEXT WITH YOUR EMAIL ADDRESS')
+keyring::key_list() #Command to show list of keys saved on your computer/account
 
 
 #### Question 1-1: Comparing populations ####
