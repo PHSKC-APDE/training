@@ -17,7 +17,8 @@ origin <- "1970-01-01" # Set the origin date, which is needed for many data/time
 export_path <- "C:/Users/REPLACE WITH YOUR USER NAME/OneDrive - King County/" #replace with your desired path, use forward slashes
 
 ##Set keyring for SharePoint account
-keyring::key_set("sharepoint", username = "REPLACE TEXT WITH YOUR EMAIL ADDRESS") #Will prompt for password
+#keyring::key_set("sharepoint", username = "REPLACE TEXT WITH YOUR EMAIL ADDRESS") #Will prompt for password
+keyring::key_list()
 
 ## Questions to answer using amusing, fake dataset:
   ## #1: Which manager is more productive?
@@ -31,8 +32,8 @@ keyring::key_set("sharepoint", username = "REPLACE TEXT WITH YOUR EMAIL ADDRESS"
 
 ##Connect to SharePoint/TEAMS site
 myteam <- get_team(team_name = "DPH-APDETraining",
-                   username = keyring::key_list("kc_kerneli")$username,
-                   password = keyring::key_get("kc_kerneli", keyring::key_list("kc_kerneli")$username),
+                   username = keyring::key_list("sharepoint")$username,
+                   password = keyring::key_get("sharepoint", keyring::key_list("sharepoint")$username),
                    auth_type = "resource_owner",
                    tenant = "kingcounty.gov")
 
