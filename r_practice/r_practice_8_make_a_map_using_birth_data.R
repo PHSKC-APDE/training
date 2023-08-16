@@ -73,12 +73,12 @@ city <- city %>% group_by(NAME10) %>% summarize() # collapse down to 1 row per l
 ##Get centroids for city text labels
 centroids <- st_centroid(city)
 centroids <- cbind(centroids, st_coordinates(st_centroid(centroids$geometry)))
-setDT(centroids)
 
 ##Set up map for plotting
+#The order of data layers is important because they are stacked on top of each other
 my.map1 <- ggplot() + 
   geom_sf(data = hra2020, fill = 'White', color = NA) + #White color for water and other blank areas, no outline
-  geom_sf(data = map, aes(fill=mean_percent), size = 0.3) + #Color HRAs according to mean_percent
+  geom_sf(data = map, aes(fill=mean_percent)) + #Color HRAs according to mean_percent
   geom_sf(data = hra2020, fill = NA, size = 1, color = 'black') + #Black outlines for HRAs
   geom_label(data = centroids, aes(x=X, y=Y, label = as.character(NAME10)), size = 5, color = 'Black',
              label.padding = unit(0.1, "lines")) + #Labels for cities of interest
@@ -86,7 +86,7 @@ my.map1 <- ggplot() +
   
   labs(title = "Percentage of births where mother smoked during pregnancy, by King County HRA, 2012-2021 average") +
   
-  theme(plot.title = element_text(color = "black", size = 20, face = "bold"), #Format title
+  theme(plot.title = element_text(color = "black", size = 16, face = "bold"), #Format title
         axis.line = element_blank(), axis.text = element_blank(), #Suppress axis line
         axis.ticks = element_blank(), axis.title = element_blank(), #Suppress axis ticks and labels
         panel.grid.major = element_line(color = "white"), #Format background outline
