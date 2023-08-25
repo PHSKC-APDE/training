@@ -1,7 +1,7 @@
 # Code examples
 ## [Install common packages with ease](examples/example_install_packages.R) 
 -----
-* ### [Run this code first!](examples/examples/example_install_packages.R)
+* ### [Run this code first!](examples/example_install_packages.R)
 ## [Importing & exporting data](examples/example_import_export.md#importing--exporting-data) 
 -----
 ### [Import data](examples/example_import_export.md#import-data)
