@@ -14,10 +14,7 @@
 #
 #A recorded presentation of this script, with audience Q/A can be found here:
 #
-#
-#
-#
-#This script walks through how to access death data and perform an age standardized calculation using RADS
+##This script walks through how to access death data and perform an age standardized calculation using RADS
 #
 #Based on vignette found at https://github.com/PHSKC-APDE/rads/wiki/calculating_rates_with_rads
 #
@@ -25,11 +22,11 @@
 #
 #Other death functions: https://github.com/PHSKC-APDE/rads/wiki/death_functions
 #
-#
-
-
 
 #### Setup ####
+
+
+
 ##Load packages and set defaults
 pacman::p_load(data.table) # Load list of packages
 library(rads) #if rads is not installed, pacman cannot auto install it for you. Loading it separately will make any error easier to see.
