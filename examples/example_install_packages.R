@@ -68,6 +68,7 @@ install.packages(c('broom',
 
 # Install PHSKC packages
 remotes::install_github("PHSKC-APDE/rads", auth_token = NULL)
+remotes::install_github("PHSKC-APDE/claims_data")
 remotes::install_github('https://github.com/PHSKC-APDE/spatagg')
 remotes::install_github('https://github.com/PHSKC-APDE/kcparcelpop/')
 
