@@ -83,8 +83,8 @@ calc(ph.data = birth,
      metrics = c("mean", "rse", "numerator", "denominator"),
      time_var = "chi_year",
      by = "chi_year")[]
-
-#notice, this will throw an error. Calc does not allow you to reuse your time variable, and instructs you to copy it to an additional variable instead.
+#notice, this will throw an error.
+#Calc does not allow you to reuse your time variable, and instructs you to copy it to an additional variable instead.
 birth$cy <- birth$chi_year #base R approach
 birth[,"cy"] <- birth[,chi_year] #also base R
 birth[, cy := chi_year] #DT approach
@@ -125,6 +125,20 @@ calc(ph.data = birth,
      metrics = c("mean", "rse"),
      by = c("chi_race_eth8", "chi_sex"))[]
 
+#what about mean birth weight for each gender and preterm status?
+calc(ph.data = birth,
+     what = c("birth_weight_grams"),
+     chi_year == 2019,
+     metrics = c("mean", "rse"),
+     by = c("chi_race_eth8", "chi_sex", "preterm"))[]
+#note the warning that NA's were introduced. This is likely due to preterm not being available for some observations.
+#we can see these by singling out the preterm bivariate
+calc(ph.data = birth,
+     what = c("preterm"),
+     chi_year == 2019,
+     metrics = c("mean", "rse"),
+     by = c("chi_sex"))[]
+
 #"how many birth were there between 2017 and 2019 for each race?"
 calc(ph.data = birth,
      what = c("chi_race_eth8"),
@@ -137,11 +151,4 @@ calc(ph.data = birth,
      chi_year %in% 2017:2019,
      metrics = c("obs", "numerator", "denominator", "rate"),
      per = 100000)[] #per will additionally report a standardized rate
-
-#"what is the count, and proportion, of observations missing a gender in our data?"
-calc(ph.data = birth,
-     what = c("chi_sex"),
-     chi_year %in% 2017:2019,
-     metrics = c("obs", "missing", "missing.prop"),
-     by = "chi_year")[]
 
