@@ -1,0 +1,45 @@
+---
+title: "r_practice_11_documentation_with_markdown_and_quarto"
+author: "Ronald W. Buie"
+format: html
+---
+
+# What are you reading?
+
+This is a training session on the basic usage of R markdown and R studio's notebook functionality to better document your work and to generate reports for customers.
+
+Some basic terminology:
+
+- R Studio: An Integrated Development Environment specialized for R programming
+- Markdown: A markup language (text formatting language) designed to be easy to type and easy to read when it isn't compiled, but to result in pretty and well formatted text when it is compiled. Here we use a flavor of markdown specific to R, simply called "R Markdown".
+- (R/Quarto) Notebook: The notebook is the extention of the IDE that lets you blend your markdown language and your code. At its most simple, you can use it to alternate between markdown and programming code. At its most complex there really is no limit, but for practical applications of notebooks include many web pages and dashboards.
+
+
+# What is a notebook?
+
+Notebooks 
+
+This is a popular approach across programing in research, data sciences, and applicaiton prototyping contexts.
+
+This specific approach is integrated into R studio, and a long standing feature. If you are familiar with Jupyter notebooks in Python, then this will be familier. But note that Jupyter is a spinoff from R studio's markdown functionality and lacks some features while adding others.
+
+# Why use notebooks?
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this 
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
