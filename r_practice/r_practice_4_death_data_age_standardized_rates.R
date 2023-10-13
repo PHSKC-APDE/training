@@ -14,7 +14,9 @@
 #
 #A recorded presentation of this script, with audience Q/A can be found here:
 #
-##This script walks through how to access death data and perform an age standardized calculation using RADS
+#This script walks through how to access death data and perform an age standardized calculation using RADS
+#
+#You can find this, and the rest of our training scripts at https://github.com/PHSKC-APDE/R_training/tree/main/r_practice
 #
 #Based on vignette found at https://github.com/PHSKC-APDE/rads/wiki/calculating_rates_with_rads
 #
@@ -102,8 +104,8 @@ head(population.with.intents)
 population.with.intents[, .N, intent] # confirm that have 101 rows per intent by showing total observations per intent
 
 
-#Step 3, combine nmerators and denominators into one DT
-#
+#Step 3, combine numerators and denominators into one DT
+
 
 deaths.with.denominators <- merge(aggregate.deaths,
                 population.with.intents,
