@@ -16,6 +16,8 @@
 #
 #This script walks through how to access death data and perform an age standardized calculation using RADS
 #
+#You can find this, and the rest of our training scripts at https://github.com/PHSKC-APDE/R_training/tree/main/r_practice
+#
 #Based on vignette found at https://github.com/PHSKC-APDE/rads/wiki/calc#example-vital-statistics-analyses
 #
 #More about birth data: https://github.com/PHSKC-APDE/DOHdata/tree/main/ETL/birth
