@@ -1,6 +1,5 @@
 ##RADS practice
 ##Analyzing death data using age-standardized rates##
-##Ronald Buie, August 2023
 ##Ronald Buie, Aug 2023
 
 
@@ -52,9 +51,12 @@ export_path <- "C:/Users/REPLACE WITH YOUR USER NAME/OneDrive - King County/" #r
 
 #step 1, generate numerators of deaths by age and type
 
+#You can view the columns available for a data set by using the list_dataset_columns function and specifying the desired data set
+columns <- rads::list_dataset_columns("death")
+
 #Pull data using RADS::get_data_death
 #note that get_data_death is the same as get_data with the dataset = "death"
-individual.deaths <- get_data_death(cols = c('chi_age',
+individual.deaths <- rads::get_data_death(cols = c('chi_age',
                                   'chi_year',
                                   'chi_geo_seattle',
                                   'underlying_cod_code'),
@@ -96,10 +98,26 @@ head(population)
 
 #Our next step will be to merge our denominator and numerators into a single DT. Because our numerators are further stratified by intention in their death, we will merge these tables by both age AND intention. This code replicates our 101 ages-populations 5 times, adding an intent category for each set of 101 age-populations
 #we need to perform this for each strata of intention
-population.with.intents <- rbindlist(lapply(X = 1:length(unique(aggregate.deaths$intent)),
-                               FUN = function(X){
-                                 temp <- copy(population)[, intent := unique(aggregate.deaths$intent)[X]]
+#
+population.with.intents <- rbindlist(lapply(X = 1:length(unique(aggregate.deaths$intent)), #loop through a list of integers, 1 to the number of levels of intent and combine all results into population.with.intents
+                               FUN = function(X){ #pass the current integer to the below function
+                                 temp <- copy(population)[, intent := unique(aggregate.deaths$intent)[X]] #use the integer as an index to assign the indexed intent to our populations
                                }))
+
+#lapply is very fast, but can be difficult to read. For loops are somewhat slow in R, but easier to read.
+#this loop does the same thing as the lapply function above
+for(intentIndex in 1:length(unique(aggregate.deaths$intent))) { #loop through a list of integers, 1 to the number of levels of intent
+  temp <- copy(population)[, intent := unique(aggregate.deaths$intent)[intentIndex]] #use the integer as an index to assign the indexed intent to our populations
+  if(exists("population.with.intents.2")) { #combine results into population.with.intents.2
+    population.with.intents.2 <- rbind(temp,population.with.intents.2) #if population.with.intents.2 exists, add to it
+  } else{
+    population.with.intents.2 <- temp #if it doesn't exists, use teh current temp result to create it
+  }
+}
+
+#confirm that we have created the same data set twice
+identical(population.with.intents[order(pop, intent),], population.with.intents.2[order(pop, intent),])
+
 head(population.with.intents)
 population.with.intents[, .N, intent] # confirm that have 101 rows per intent by showing total observations per intent
 
@@ -119,7 +137,7 @@ head(deaths.with.denominators[count > 9]) # only display non-suppressed data
 #Step 4 standardize ages using rads::age_standardize()
 #
 #we can use rads::age_standardize to simplify our age adjustments.
-est <- age_standardize(ph.data = deaths.with.denominators, # our prepared data set
+est <- rads::age_standardize(ph.data = deaths.with.denominators, # our prepared data set
                        ref.popname = "2000 U.S. Std Population (11 age groups)", #the reference population, see documentation for list of options
                        collapse = T,
                        my.count = 'count',
@@ -128,4 +146,7 @@ est <- age_standardize(ph.data = deaths.with.denominators, # our prepared data s
                        conf.level = 0.95,
                        group_by = 'intent')
 head(est)
+
+
+
 
