@@ -12,7 +12,7 @@
 remotes::update_packages("rads") # Update RADS if it is out of date
 
 ##Load packages and set defaults
-pacman::p_load(tidyverse, rads, rads.data, openxlsx2) # Load list of packages
+pacman::p_load(tidyverse, rads, rads.data, openxlsx) # Load list of packages
 options(max.print = 350) # Limit # of rows to show when printing/showing a data.frame
 options(tibble.print_max = 50) # Limit # of rows to show when printing/showing a tibble (a tidyverse-flavored data.frame)
 options(scipen = 999) # Avoid scientific notation
@@ -76,7 +76,7 @@ wa_pop_final <- bind_rows(wa_pop, wa_pop_raceeth)
 data <- list(kc_pop_final, wa_pop_final) #This list specifies what data.frames to write to Excel tabs
 sheet <- list("kc_pop_final", "wa_pop_final") #This list specifies the names of the Excel tabs
 filename <- paste0(export_path, "get_population_results.xlsx") #This command specifies the path and name of the file
-write_xlsx(data, file = filename, sheetName = sheet) #This command exports the data to Excel using above parameters
+openxlsx::write.xlsx(data, file = filename, sheetName = sheet) #This command exports the data to Excel using above parameters
 
 
 #### Question 1-2: Population changes over time ####

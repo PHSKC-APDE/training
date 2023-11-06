@@ -18,7 +18,7 @@ install.packages("pacman")
 
 ##Load (or install) packages used for exercises
 #Note that we will be using both tidyverse and data.table in these practice exercises
-pacman::p_load(tidyverse, rads, rads.data, openxlsx2, data.table, lubridate, sf, ggrepel, ggthemes, keyring)
+pacman::p_load(tidyverse, rads, rads.data, openxlsx, data.table, lubridate, sf, ggrepel, ggthemes, keyring)
 
 ##Set defaults
 options(max.print = 350, tibble.print_max = 50, scipen = 999)
@@ -35,4 +35,4 @@ test_df <- data.frame("col1" = 1, "col2" = 2, "col3" = 3)
 data <- list(test_df)
 sheet <- list("test_data")
 filename <- paste0(export_path, "test_data.xlsx")
-write_xlsx(data, file = filename, sheetName = sheet)
+openxlsx::write.xlsx(data, file = filename, sheetName = sheet)

@@ -9,7 +9,7 @@
 remotes::update_packages("rads") #update RADS if it is out of date
 
 ##Load packages and set defaults
-pacman::p_load(tidyverse, rads, rads.data, openxlsx2, sf, data.table, ggrepel, ggthemes) # Load list of packages
+pacman::p_load(tidyverse, rads, rads.data, openxlsx, sf, data.table, ggrepel, ggthemes) # Load list of packages
 options(max.print = 350) # Limit # of rows to show when printing/showing a data.frame
 options(tibble.print_max = 50) # Limit # of rows to show when printing/showing a tibble (a tidyverse-flavored data.frame)
 options(scipen = 999) # Avoid scientific notation
