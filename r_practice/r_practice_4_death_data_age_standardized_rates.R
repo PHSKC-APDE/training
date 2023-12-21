@@ -5,7 +5,7 @@
 
 #### Background ####
 #The following is an R script introducing users to a basic analysis of APDE data.
-#It is part of a larger set of training resources that can be found here: <link to training github>
+#It is part of a larger set of training resources that can be found here: https://github.com/PHSKC-APDE/R_training
 #
 #This vignette relies on our in-house analytics package "R Analytics "R Automatic Data System" or RADS. You can find RADS and installation instructions here: <link to RADS repository
 #
