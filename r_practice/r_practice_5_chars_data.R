@@ -8,7 +8,7 @@
 #
 # It is part of a larger set of training resources that can be found here: https://github.com/PHSKC-APDE/R_training
 #
-# This vignette relies on our in-house analytics package "R Analytics "R Automatic Data System" or RADS. You can find RADS and installation instructions here: <link to RADS repository
+# This vignette relies on our in-house analytics package "R Analytics "R Automatic Data System" or RADS. You can find RADS and installation instructions here: https://github.com/PHSKC-APDE/rads
 #
 # This vignette assumes you have access to the necessary data. If you do not, or are not sure, please reach out to your manager.
 #
@@ -18,7 +18,12 @@
 #
 # Based on vignette found at https://github.com/PHSKC-APDE/rads/wiki/chars_functions
 #
-# Background information upon which APDE's CHARS data classifications are based https://hcup-us.ahrq.gov/toolssoftware/ccsr/dxccsr.jsp
+# Background information:
+# APDE's CHARS data classifications are based https://hcup-us.ahrq.gov/toolssoftware/ccsr/dxccsr.jsp
+# You can read more about any particular ICD10 codes here: https://www.cdc.gov/nchs/icd/icd10cm_browsertool.htm
+# You can read more about ICD10 injury classification here: https://www.cdc.gov/nchs/injury/injury_tools.htm
+# Nonfatal injury report data elements: https://www.cdc.gov/injury/wisqars/nonfatal_help/definitions_nonfatal.html
+
 
 
 #### Setup ####
@@ -48,7 +53,7 @@ dim(charsDT) # dimensions of the downloaded CHARS data.table object
 names(charsDT)[1:6] # names of the first 6 columns
 
 unique(charsDT$chi_geo_kc) # display unique values of the king count indicator to confirm data is limited to King County
-
+unique(charsDT$zipcode)
 unique(charsDT$chi_year) # display unique values of the year variable (which years do we have)
 
 max(charsDT$chi_age, na.rm = T) # check that ages max to 100 (ADPE standard), na.rm will remove NA's from the calculation of the maximum. If you do not, you will receive NA, instead of anumber, if any.
@@ -61,12 +66,15 @@ classifications <- chars_icd_ccs() #returns list of all descriptions
 classifications[1:5]
 
 classifications[icdcm_code == "I110",] #see information for a code of interest
+classifications[broad == "Diseases of the digestive system",]
+
+classifications[broad == "Diseases of the digestive system",]$icdcm_code #this would generate a list of which ICD10 codes are under the category for "Diseases of the digestive system"
 
 
 #### getting CHARS counts ####
 
 mycode <- chars_icd_ccs_count(ph.data = charsDT, icdcm = 'I110') #using our data, charsDT, we can specify a valid icd code to display how many observations meet the code
-
+chars_icd_ccs_count(ph.data = charsDT)
 mycode
 
 mydesc <- chars_icd_ccs_count(ph.data = charsDT, icdcm = 'hypertensive heart disease with heart failure') #you can also use the description
@@ -77,8 +85,9 @@ broad <- chars_icd_ccs_count(ph.data = charsDT, broad = 'Diseases of the circula
 
 broad
 
-### listing injury options with  chars_injury_matrix() ###
+unique(classifications[broad == "Diseases of the circulatory system",]$detailed)
 
+### listing injury options with  chars_injury_matrix() ###
 
 injuries <- chars_injury_matrix()
 
@@ -88,18 +97,20 @@ unique(injuries$intent) # see a list of the available intents
 
 unique(injuries$mechanism) #Similarly, to see the available mechanisms
 
+unique(injuries[intent == "assault",]$mechanism) #by specifying teh type of intent, you can see which mechanisms are available
+
+
 ### generate counts of injuries from our data
 
 mat1 <- chars_injury_matrix_count(ph.data = charsDT,
                                   intent = 'assault',
                                   mechanism = 'none')
-
 mat1
 
-mat2 <- chars_injury_matrix_count(ph.data = charsDT,
-                                  intent = 'assault|undetermined', #note you can use logic operators, such as OR used here
-                                  mechanism = 'none')
 
+mat2 <- chars_injury_matrix_count(ph.data = charsDT,
+                                  intent = 'assault|undetermined', #note you can use logic operators, such as OR used here.
+                                  mechanism = 'none')
 mat2
 
 
@@ -125,7 +136,7 @@ mat4 <- chars_injury_matrix_count(ph.data = charsDT,
 
 ## What happens if you don’t specify the mechanism and intent?
 
-mat5 <- chars_injury_matrix_count(ph.data = charsDT)[1:10]
+mat5 <- chars_injury_matrix_count(ph.data = charsDT)
 
 ## How different are the `narrow` and `broad` definitions?
 
@@ -146,5 +157,5 @@ mat7
 deftable <- rbind(cbind(def = 'narrow', mat6),
                   cbind(def = 'broad', mat7))
 
-deftable v#notice this is quite different. Happy to discuss, but basically you should be familiar with which AHRQ/CCSR and/or ICD classifications to use for your analysis, and be intentional about using the functions to aggregate correctly.
+deftable #notice this is quite different. Happy to discuss, but basically you should be familiar with which AHRQ/CCSR and/or ICD classifications to use for your analysis, and be intentional about using the functions to aggregate correctly.
 
