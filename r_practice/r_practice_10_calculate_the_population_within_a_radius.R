@@ -1,10 +1,10 @@
 ##RADS practice
-##Assigning populations to arbitrary radi around location##
-##Ronald Buie, Nov 2023
+##Assigning populations to arbitrary radius around a point location
+##Ronald Buie, December 2023
 
 #### Background ####
 #The following is an R script introducing users to a basic geospatial analysis using common APDE resources
-#It is part of a larger set of training resources that can be found here: <link to training github>
+#It is part of a larger set of training resources that can be found here: https://github.com/PHSKC-APDE/R_training/tree/main/r_practice
 #
 #This vignette relies on our in-house analytics package "R Analytics "R Automatic Data System" or RADS. You can find RADS and installation instructions here: https://github.com/PHSKC-APDE/rads
 #
@@ -18,20 +18,10 @@
 ##Load packages and set defaults
 pacman::p_load(data.table,
                sf,
-               flextable) # Load list of packages
+               flextable,
+               ggplot2) # Load list of packages
 library(rads) #if rads is not installed, pacman cannot auto install it for you. Loading it separately will make any error easier to see.
 library(spatagg)
-library(kcparcelpop)
-library(ggplot2)
-
-# ##Set environment options
-# options(max.print = 350) # Limit # of rows to show when printing/showing a data.frame
-# options(tibble.print_max = 50) # Limit # of rows to show when printing/showing a tibble (a tidyverse-flavored data.frame)
-# options(scipen = 999) # Avoid scientific notation
-# origin <- "1970-01-01" # Set the origin date, which is needed for many data/time functions
-# export_path <- "C:/Users/REPLACE WITH YOUR USER NAME/OneDrive - King County/" #replace with your desired path, use forward slashes
-
-
 
 #### Vignette ####
 
@@ -62,7 +52,6 @@ for(rowIndex in 1:nrow(PizzaGeos)) {
   CW <- create_xwalk(BlockShapes, PizzaGeos[rowIndex,], "GEOID20", "restaurant",min_overlap = 0.00001)
   CWPop <- merge(CW, KCPops, by.x = "source_id", by.y = "geo_id")
   weightedPop <- sum(CWPop$s2t_fraction * CWPop$pop)
-
   PizzaPlaces[rowIndex]$pop <- weightedPop
 }
 
@@ -73,3 +62,21 @@ PizzaPlaces
 PizzaPlacesGeos <- merge(PizzaGeos, PizzaPlaces, by.x = c("restaurant"), by.y = c("restaurant")) #merging together our shape data and original pizza places (now with populations) so that pop and shape are aligned in ggplot
 ggplot() + geom_sf(data = BlockShapes, fill = NA) +
   geom_sf(data = PizzaPlacesGeos, color = 'purple', aes(fill = pop))
+
+
+#cropping map
+blockshapes_cropped <- st_crop(BlockShapes, xmin = -122.4, xmax = -122.2, ymin = 47.5, ymax = 47.7)
+
+ggplot() + geom_sf(data = blockshapes_cropped, fill = NA) +
+  geom_sf(data = PizzaPlacesGeos, color = 'purple', aes(fill = pop))
+
+#creating a cropped version (testing Markus Konrad's approach!)
+disp_win_wgs84 <- st_sfc(st_point(c(-122.4, 47.5)), st_point(c(-122.2, 47.7)), crs = 4326)
+disp_win_wgs84
+disp_win_trans <- st_transform(disp_win_wgs84, st_crs(crsString))
+disp_win_coord <- st_coordinates(disp_win_trans)
+
+
+ggplot() + geom_sf(data = BlockShapes, fill = NA) +
+  geom_sf(data = PizzaPlacesGeos, color = 'purple', aes(fill = pop)) +
+coord_sf(xlim = disp_win_coord[,'X'], ylim = disp_win_coord[,'Y'], expand = FALSE)
