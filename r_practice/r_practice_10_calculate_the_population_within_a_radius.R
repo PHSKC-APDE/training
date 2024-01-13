@@ -31,7 +31,7 @@ PizzaPlaces <- data.table("restaurant" = c("Flying Squirrel Pizza Co.", "Mamma M
            "lat" = c(47.551128, 47.666530, 47.614570, 47.613050, 47.598980, 47.618490),
            "pop" = 0) #placeholder for the population we will generate
 
-#convert our long and lat into a geospation coordinate (as a shape).
+#convert our long and lat into a spatial coordinate (as a shape).
 crsString <- "EPSG:2926" #preferred coordinate reference system for WA
 PizzaGeos <- st_as_sf(x = PizzaPlaces[,c("restaurant", "long", "lat")],coords = c("long","lat"), crs = "EPSG:4326") #convert to a geometry. Note that google maps is probably using coordinate system EPSG:4326, so we specify that here
 PizzaGeos <- st_transform(PizzaGeos, st_crs(crsString))
@@ -49,10 +49,10 @@ KCPops <- get_population(geo_type = "blk", kingco = T, year = 2022)
 
 #loop through restaurants, generate crosswalk of overlapping populations, and assign population to restaurant table
 for(rowIndex in 1:nrow(PizzaGeos)) {
-  CW <- create_xwalk(BlockShapes, PizzaGeos[rowIndex,], "GEOID20", "restaurant",min_overlap = 0.00001)
-  CWPop <- merge(CW, KCPops, by.x = "source_id", by.y = "geo_id")
-  weightedPop <- sum(CWPop$s2t_fraction * CWPop$pop)
-  PizzaPlaces[rowIndex]$pop <- weightedPop
+  CW <- create_xwalk(BlockShapes, PizzaGeos[rowIndex,], "GEOID20", "restaurant",min_overlap = 0.00001) #calculate the percentage of overlap between our census blocks and a pizza shop radius
+  CWPop <- merge(CW, KCPops, by.x = "source_id", by.y = "geo_id") #combine crosswalk spacial information with population information
+  weightedPop <- sum(CWPop$s2t_fraction * CWPop$pop) #calculate the weighted number of people within the radius of the pizza shop
+  PizzaPlaces[rowIndex]$pop <- weightedPop #add resulting total to our pizza places data table
 }
 
 #report table
@@ -60,23 +60,26 @@ PizzaPlaces
 
 #visualize the location of each restaurant
 PizzaPlacesGeos <- merge(PizzaGeos, PizzaPlaces, by.x = c("restaurant"), by.y = c("restaurant")) #merging together our shape data and original pizza places (now with populations) so that pop and shape are aligned in ggplot
-ggplot() + geom_sf(data = BlockShapes, fill = NA) +
-  geom_sf(data = PizzaPlacesGeos, color = 'purple', aes(fill = pop))
-
-
-#cropping map
-blockshapes_cropped <- st_crop(BlockShapes, xmin = -122.4, xmax = -122.2, ymin = 47.5, ymax = 47.7)
-
-ggplot() + geom_sf(data = blockshapes_cropped, fill = NA) +
-  geom_sf(data = PizzaPlacesGeos, color = 'purple', aes(fill = pop))
-
-#creating a cropped version (testing Markus Konrad's approach!)
-disp_win_wgs84 <- st_sfc(st_point(c(-122.4, 47.5)), st_point(c(-122.2, 47.7)), crs = 4326)
-disp_win_wgs84
-disp_win_trans <- st_transform(disp_win_wgs84, st_crs(crsString))
-disp_win_coord <- st_coordinates(disp_win_trans)
-
 
 ggplot() + geom_sf(data = BlockShapes, fill = NA) +
-  geom_sf(data = PizzaPlacesGeos, color = 'purple', aes(fill = pop)) +
-coord_sf(xlim = disp_win_coord[,'X'], ylim = disp_win_coord[,'Y'], expand = FALSE)
+  geom_sf(data = PizzaPlacesGeos, color = 'purple', aes(fill = pop), alpha = 0.7)
+
+#This is a bit large for our purpose. Let's try cropping our map. This is based on Markus Konrad's blog here: https://www.r-bloggers.com/2019/04/zooming-in-on-maps-with-sf-and-ggplot2/
+
+#cropping the shapefile
+BlockShapes4326 <- st_transform(BlockShapes, crs = 4326) #st_crop works with coordinate system 4326, so convert back
+BlockShapesCropped <- st_crop(BlockShapes4326, xmin = -122.4, xmax = -122.2, ymin = 47.5, ymax = 47.7,)
+ggplot() + geom_sf(data = BlockShapesCropped) +
+  geom_sf(data = PizzaPlacesGeos, color = 'purple', aes(fill = pop), alpha = 0.7)
+
+#creating a viewing window (but keeping underlying shape file)
+DisplayWindow4326 <- st_sfc(st_point(c(-122.4, 47.5)), st_point(c(-122.2, 47.7)), crs = 4326) #define the bottom left and top right corners of the window.
+DisplayWindow4326
+DisplayWindow2926 <- st_transform(DisplayWindow4326, st_crs(crsString)) #change to a matching coordinate system
+windowCoord <- st_coordinates(DisplayWindow2926) #pull coordinates out of shape object
+windowCoord
+
+ggplot() + geom_sf(data = BlockShapes, fill = NA) +
+  geom_sf(data = PizzaPlacesGeos, color = 'purple', aes(fill = pop), alpha = 0.7) +
+coord_sf(xlim = windowCoord[,'X'], ylim = windowCoord[,'Y'], expand = FALSE)
+
