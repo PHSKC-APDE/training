@@ -43,9 +43,10 @@ db_hhsaw <- DBI::dbConnect(odbc::odbc(),
 
 ## Counting distinct individuals in claims data
 
-**Counting distinct people.** The following code counts the total number
-of people in Medicaid data across all time. PHSKC maintains Medicaid
-claims data for the most recent 10 years.
+**Counting distinct people.**  
+The following code counts the total number of people in Medicaid data
+across all time. PHSKC maintains Medicaid claims data for the most
+recent 10 years.
 
 ``` r
 #Prep SQL query
@@ -61,10 +62,10 @@ result1$id_dcount
 
     ## [1] 1179733
 
-**Counting people by mutually inclusive race/ethnicity categories.** Now
-let’s count distinct individuals by race/ethnicity using a few different
-approaches. First, APDE’s primary approach - mutually inclusive
-race/ethnicity categories:
+**Counting people by mutually inclusive race/ethnicity categories.**  
+Now let’s count distinct individuals by race/ethnicity using a few
+different approaches. First, APDE’s primary approach - mutually
+inclusive race/ethnicity categories:
 
 ``` r
 sql_query_1 <- glue::glue_sql(
@@ -104,10 +105,10 @@ arrange(result1, race_eth)
     ## 6  Unknown    140605
     ## 7    White    567704
 
-**Counting people by mutually exclusive race/ethnicity categories.** Now
-let’s count people using mutually exclusive race/ethnicity categories
-where people identifying with more than one race/ethnicity are included
-in the Multiple Race group.
+**Counting people by mutually exclusive race/ethnicity categories.**  
+Now let’s count people using mutually exclusive race/ethnicity
+categories where people identifying with more than one race/ethnicity
+are included in the Multiple Race group.
 
 ``` r
 sql_query_1 <- glue::glue_sql(
@@ -130,9 +131,10 @@ arrange(result1, race_eth_me)
     ## 7     Unknown    140605
     ## 8       White    450610
 
-**Calculating age.** Now let’s calculate the minimum, maximum, and mean
-age of Medicaid beneficiaries. To calculate age, we have to choose a
-reference date - let’s choose December 31, 2023.
+**Calculating age.**  
+Now let’s calculate the minimum, maximum, and mean age of Medicaid
+beneficiaries. To calculate age, we have to choose a reference date -
+let’s choose December 31, 2023.
 
 ``` r
 reference_date <- "2023-12-31"
@@ -157,13 +159,14 @@ result1
     ##   age_min age_max age_mean
     ## 1       0     123     34.6
 
-**Selecting people with coverage during a measurement window.** Now
-let’s start to work with time-varying concepts, beginning with coverage
-start and end dates. Note that people enter and exit the Medicaid data
-for three reasons: 1) people gain or lose Medicaid coverage (change in
-eligibility), 2) people move into or out of King County, or 3) people
-are born or die. With the exception of people entering due to birth, we
-cannot differentiate between any of the other reasons.
+**Selecting people with coverage during a measurement window.**  
+Now let’s start to work with time-varying concepts, beginning with
+coverage start and end dates. Note that people enter and exit the
+Medicaid data for three reasons: 1) people gain or lose Medicaid
+coverage (change in eligibility), 2) people move into or out of King
+County, or 3) people are born or die. With the exception of people
+entering due to birth, we cannot differentiate between any of the other
+reasons.
 
 For this first example, let’s find all the people with 1 or more day of
 Medicaid coverage in 2023. The `[claims].[final_mcaid_elig_timevar]`
@@ -419,29 +422,118 @@ arrange(result1_cat1, desc(id_dcount))
     ## 88    98064        50
     ## 89    98050        38
     ## 90    98138        33
-    ## 91    98083        32
-    ## 92    98025        32
+    ## 91    98025        32
+    ## 92    98083        32
     ## 93    98035        30
-    ## 94    98145        28
-    ## 95    98114        28
+    ## 94    98114        28
+    ## 95    98145        28
     ## 96    98068        27
     ## 97    98127        20
     ## 98    98015        19
     ## 99    98113        17
     ## 100   98165        15
     ## 101   98073        11
-    ## 102   98175        NA
-    ## 103   98013        NA
-    ## 104   98161        NA
-    ## 105   98089        NA
-    ## 106   98041        NA
-    ## 107   98194        NA
-    ## 108   98185        NA
-    ## 109   98160        NA
-    ## 110   98139        NA
-    ## 111   98251        NA
-    ## 112   98141        NA
-    ## 113   98124        NA
-    ## 114   98174        NA
-    ## 115   98131        NA
-    ## 116   98164        NA
+    ## 102   98089        NA
+    ## 103   98194        NA
+    ## 104   98160        NA
+    ## 105   98141        NA
+    ## 106   98139        NA
+    ## 107   98251        NA
+    ## 108   98124        NA
+    ## 109   98185        NA
+    ## 110   98174        NA
+    ## 111   98131        NA
+    ## 112   98164        NA
+    ## 113   98041        NA
+    ## 114   98013        NA
+    ## 115   98175        NA
+    ## 116   98161        NA
+
+## Counting health care encounters
+
+**Counting emergency department visits.**  
+The following code counts the total number of *distinct* emergency
+department (ED) visits by year from 2018-2022, using two different
+definitions for ED visit. The standard definition used by APDE is the
+`ed_pophealth_id` field, as uses a broader definition of an ED visit
+than the `ed_perform_id` field.
+
+``` r
+sql_query_1 <- glue::glue_sql(
+  "select a.service_year, a.ed_pophealth_dcount, b.ed_perform_dcount
+  from (
+    select year(last_service_date) as service_year, count(distinct ed_pophealth_id) as ed_pophealth_dcount
+    from claims.final_mcaid_claim_header
+    where year(last_service_date) between 2018 and 2022
+      and ed_pophealth_id is not null
+    group by year(last_service_date)
+  ) as a
+  left join (
+    select year(last_service_date) as service_year, count(distinct ed_perform_id) as ed_perform_dcount
+    from claims.final_mcaid_claim_header
+    where year(last_service_date) between 2018 and 2022
+      and ed_perform_id is not null
+    group by year(last_service_date)
+  ) as b
+  on a.service_year = b.service_year;",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+arrange(result1, service_year)
+```
+
+    ##   service_year ed_pophealth_dcount ed_perform_dcount
+    ## 1         2018              253029            232439
+    ## 2         2019              249888            229344
+    ## 3         2020              198647            181788
+    ## 4         2021              227801            208541
+    ## 5         2022              245984            227378
+
+**Counting inpatient hospital stays.**  
+The following code counts the total number of *distinct* acute inpatient
+stays by year from 2018-2022, which includes hospitalizations for both
+medical reasons and for labor and delivery.
+
+``` r
+sql_query_1 <- glue::glue_sql(
+  "select year(last_service_date) as service_year, count(distinct inpatient_id) as inpatient_dcount
+  from claims.final_mcaid_claim_header
+  where year(last_service_date) between 2018 and 2022
+    and inpatient_id is not null
+  group by year(last_service_date);",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+arrange(result1, service_year)
+```
+
+    ##   service_year inpatient_dcount
+    ## 1         2018            24892
+    ## 2         2019            26793
+    ## 3         2020            25914
+    ## 4         2021            33195
+    ## 5         2022            31076
+
+**Counting primary care visits.**  
+The following code counts the total number of *distinct* primary care
+visits by year from 2018-2022.
+
+``` r
+sql_query_1 <- glue::glue_sql(
+  "select year(last_service_date) as service_year, count(distinct pc_visit_id) as pc_visit_dcount
+  from claims.final_mcaid_claim_header
+  where year(last_service_date) between 2018 and 2022
+    and pc_visit_id is not null
+  group by year(last_service_date);",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+arrange(result1, service_year)
+```
+
+    ##   service_year pc_visit_dcount
+    ## 1         2018         1108715
+    ## 2         2019         1054307
+    ## 3         2020          921956
+    ## 4         2021         1066642
+    ## 5         2022         1009858
