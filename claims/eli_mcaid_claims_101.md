@@ -1,7 +1,7 @@
 Medicaid claims 101
 ================
 Eli Kern \| PHSKC-APDE \|
-2024-02-13
+2024-02-15
 
 ## Welcome
 
@@ -59,14 +59,12 @@ result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
 result1$id_dcount
 ```
 
-    ## [1] 1172539
+    ## [1] 1179733
 
 **Counting people by mutually inclusive race/ethnicity categories.** Now
 let’s count distinct individuals by race/ethnicity using a few different
-approaches.
-
-First, APDE’s primary approach - mutually inclusive race/ethnicity
-categories:
+approaches. First, APDE’s primary approach - mutually inclusive
+race/ethnicity categories:
 
 ``` r
 sql_query_1 <- glue::glue_sql(
@@ -98,13 +96,13 @@ arrange(result1, race_eth)
 ```
 
     ##   race_eth id_dcount
-    ## 1    AI/AN     36884
-    ## 2    Asian    144488
-    ## 3    Black    186716
-    ## 4   Latino    192825
-    ## 5    NH/PI     79700
-    ## 6  Unknown    140056
-    ## 7    White    564240
+    ## 1    AI/AN     37172
+    ## 2    Asian    145570
+    ## 3    Black    187825
+    ## 4   Latino    194628
+    ## 5    NH/PI     80267
+    ## 6  Unknown    140605
+    ## 7    White    567704
 
 **Counting people by mutually exclusive race/ethnicity categories.** Now
 let’s count people using mutually exclusive race/ethnicity categories
@@ -123,14 +121,14 @@ arrange(result1, race_eth_me)
 ```
 
     ##   race_eth_me id_dcount
-    ## 1       AI/AN     16461
-    ## 2       Asian    119692
-    ## 3       Black    148517
-    ## 4      Latino     91898
-    ## 5    Multiple    153549
-    ## 6       NH/PI     54101
-    ## 7     Unknown    140056
-    ## 8       White    448265
+    ## 1       AI/AN     16556
+    ## 2       Asian    120473
+    ## 3       Black    149297
+    ## 4      Latino     92745
+    ## 5    Multiple    155040
+    ## 6       NH/PI     54407
+    ## 7     Unknown    140605
+    ## 8       White    450610
 
 **Calculating age.** Now let’s calculate the minimum, maximum, and mean
 age of Medicaid beneficiaries. To calculate age, we have to choose a
@@ -157,7 +155,7 @@ result1
 ```
 
     ##   age_min age_max age_mean
-    ## 1       0     123     34.7
+    ## 1       0     123     34.6
 
 **Selecting people with coverage during a measurement window.** Now
 let’s start to work with time-varying concepts, beginning with coverage
@@ -212,7 +210,7 @@ result1
 ```
 
     ##         
-    ## 1 605912
+    ## 1 606890
 
 For the second example, let’s find all people with 50% or more of 2023
 covered by Medicaid.
@@ -257,13 +255,14 @@ result1
 ```
 
     ##         
-    ## 1 464201
+    ## 1 464202
 
 **Assigning people to a single geography for a given measurement
-window.** People move and thus when conducting an analysis for a given
-measurement window (let’s use 2023 again), we often want to assign each
-person only once to geographic concepts, such as ZIP code of residence,
-to avoid people being counted more than once in a descriptive analysis.
+window.**  
+People move and thus when conducting an analysis for a given measurement
+window (let’s use 2023 again), we often want to assign each person only
+once to geographic concepts, such as ZIP code of residence, to avoid
+people being counted more than once in a descriptive analysis.
 
 Let’s use the following code to 1) assign a single King County ZIP code
 to each Medicaid beneficiary for 2023, and 2) count distinct people by
@@ -330,92 +329,92 @@ arrange(result1_cat1, desc(id_dcount))
 ```
 
     ##     geo_zip id_dcount
-    ## 1     98003     27993
-    ## 2     98002     24190
-    ## 3     98032     21561
-    ## 4     98023     21476
-    ## 5     98030     20812
-    ## 6     98118     20214
-    ## 7     98031     19317
-    ## 8     98168     18247
-    ## 9     98198     16787
-    ## 10    98092     16639
-    ## 11    98001     15862
-    ## 12    98042     15517
-    ## 13    98133     15494
-    ## 14    98188     13693
-    ## 15    98058     13122
-    ## 16    98125     11463
-    ## 17    98144     10955
-    ## 18    98108     10860
-    ## 19    98146     10856
-    ## 20    98034     10789
-    ## 21    98178     10755
-    ## 22    98056     10618
-    ## 23    98052     10404
-    ## 24    98122      9933
-    ## 25    98104      9544
-    ## 26    98106      9393
-    ## 27    98055      9048
-    ## 28    98155      9001
-    ## 29    98059      8554
-    ## 30    98103      8171
-    ## 31    98115      7922
-    ## 32    98105      7852
-    ## 33    98007      7752
-    ## 34    98126      6797
-    ## 35    98038      6690
-    ## 36    98006      6103
-    ## 37    98022      5997
-    ## 38    98166      5550
-    ## 39    98148      5236
-    ## 40    98057      5232
-    ## 41    98033      5095
-    ## 42    98011      4918
-    ## 43    98101      4906
-    ## 44    98121      4712
-    ## 45    98004      4579
-    ## 46    98008      4488
-    ## 47    98109      4441
-    ## 48    98028      4369
-    ## 49    98027      4311
-    ## 50    98107      4288
-    ## 51    98117      4173
-    ## 52    98102      4148
-    ## 53    98029      4056
-    ## 54    98116      3778
-    ## 55    98047      3748
-    ## 56    98119      3292
-    ## 57    98005      3012
-    ## 58    98112      2866
-    ## 59    98072      2695
-    ## 60    98177      2614
+    ## 1     98003     28026
+    ## 2     98002     24223
+    ## 3     98032     21613
+    ## 4     98023     21508
+    ## 5     98030     20847
+    ## 6     98118     20246
+    ## 7     98031     19349
+    ## 8     98168     18280
+    ## 9     98198     16811
+    ## 10    98092     16669
+    ## 11    98001     15879
+    ## 12    98042     15542
+    ## 13    98133     15516
+    ## 14    98188     13714
+    ## 15    98058     13141
+    ## 16    98125     11474
+    ## 17    98144     10974
+    ## 18    98146     10878
+    ## 19    98108     10869
+    ## 20    98034     10811
+    ## 21    98178     10768
+    ## 22    98056     10633
+    ## 23    98052     10423
+    ## 24    98122      9944
+    ## 25    98104      9550
+    ## 26    98106      9407
+    ## 27    98055      9072
+    ## 28    98155      9008
+    ## 29    98059      8564
+    ## 30    98103      8184
+    ## 31    98115      7930
+    ## 32    98105      7867
+    ## 33    98007      7770
+    ## 34    98126      6800
+    ## 35    98038      6701
+    ## 36    98006      6122
+    ## 37    98022      6008
+    ## 38    98166      5566
+    ## 39    98148      5244
+    ## 40    98057      5241
+    ## 41    98033      5100
+    ## 42    98101      4938
+    ## 43    98011      4928
+    ## 44    98121      4715
+    ## 45    98004      4587
+    ## 46    98008      4506
+    ## 47    98109      4451
+    ## 48    98028      4375
+    ## 49    98027      4324
+    ## 50    98107      4294
+    ## 51    98117      4178
+    ## 52    98102      4150
+    ## 53    98029      4061
+    ## 54    98116      3785
+    ## 55    98047      3752
+    ## 56    98119      3299
+    ## 57    98005      3018
+    ## 58    98112      2868
+    ## 59    98072      2697
+    ## 60    98177      2618
     ## 61    98070      2562
-    ## 62    98053      2362
-    ## 63    98045      2224
-    ## 64    98040      2219
-    ## 65    98199      2213
-    ## 66    98136      2104
-    ## 67    98074      2099
-    ## 68    98065      2070
-    ## 69    98019      1886
-    ## 70    98075      1878
-    ## 71    98010      1360
-    ## 72    98014      1177
-    ## 73    98077      1054
+    ## 62    98053      2363
+    ## 63    98045      2232
+    ## 64    98040      2224
+    ## 65    98199      2216
+    ## 66    98074      2104
+    ## 67    98136      2104
+    ## 68    98065      2075
+    ## 69    98019      1890
+    ## 70    98075      1883
+    ## 71    98010      1365
+    ## 72    98014      1180
+    ## 73    98077      1058
     ## 74    98024       804
-    ## 75    98051       699
+    ## 75    98051       700
     ## 76    98354       444
     ## 77    98134       443
     ## 78    98039       162
     ## 79    98195       152
-    ## 80    98009       128
+    ## 80    98009       129
     ## 81    98062       102
     ## 82    98288        88
     ## 83    98071        81
     ## 84    98224        77
-    ## 85    98063        68
-    ## 86    98093        65
+    ## 85    98063        69
+    ## 86    98093        64
     ## 87    98111        51
     ## 88    98064        50
     ## 89    98050        38
@@ -431,18 +430,18 @@ arrange(result1_cat1, desc(id_dcount))
     ## 99    98113        17
     ## 100   98165        15
     ## 101   98073        11
-    ## 102   98041        NA
-    ## 103   98161        NA
-    ## 104   98089        NA
-    ## 105   98194        NA
-    ## 106   98174        NA
-    ## 107   98131        NA
-    ## 108   98013        NA
-    ## 109   98175        NA
-    ## 110   98251        NA
-    ## 111   98160        NA
-    ## 112   98139        NA
-    ## 113   98141        NA
-    ## 114   98124        NA
-    ## 115   98185        NA
+    ## 102   98175        NA
+    ## 103   98013        NA
+    ## 104   98161        NA
+    ## 105   98089        NA
+    ## 106   98041        NA
+    ## 107   98194        NA
+    ## 108   98185        NA
+    ## 109   98160        NA
+    ## 110   98139        NA
+    ## 111   98251        NA
+    ## 112   98141        NA
+    ## 113   98124        NA
+    ## 114   98174        NA
+    ## 115   98131        NA
     ## 116   98164        NA

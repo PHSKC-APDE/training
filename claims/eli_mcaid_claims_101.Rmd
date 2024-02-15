@@ -40,7 +40,8 @@ db_hhsaw <- DBI::dbConnect(odbc::odbc(),
 
 ## Counting distinct individuals in claims data
 
-**Counting distinct people.** The following code counts the total number of people in Medicaid data across all time. PHSKC maintains Medicaid claims data for the most recent 10 years.
+**Counting distinct people.**  
+The following code counts the total number of people in Medicaid data across all time. PHSKC maintains Medicaid claims data for the most recent 10 years.
 
 ```{r all-time person count}
 
@@ -56,9 +57,8 @@ result1$id_dcount
 
 ```
 
-**Counting people by mutually inclusive race/ethnicity categories.** Now let's count distinct individuals by race/ethnicity using a few different approaches.
-
-First, APDE's primary approach - mutually inclusive race/ethnicity categories:
+**Counting people by mutually inclusive race/ethnicity categories.**  
+Now let's count distinct individuals by race/ethnicity using a few different approaches. First, APDE's primary approach - mutually inclusive race/ethnicity categories:
 
 ```{r race/eth aic}
 
@@ -91,7 +91,8 @@ arrange(result1, race_eth)
 
 ```
 
-**Counting people by mutually exclusive race/ethnicity categories.** Now let's count people using mutually exclusive race/ethnicity categories where people identifying with more than one race/ethnicity are included in the Multiple Race group.
+**Counting people by mutually exclusive race/ethnicity categories.**  
+Now let's count people using mutually exclusive race/ethnicity categories where people identifying with more than one race/ethnicity are included in the Multiple Race group.
 
 ```{r race_eth_me}
 
@@ -106,7 +107,8 @@ arrange(result1, race_eth_me)
 
 ```
 
-**Calculating age.** Now let's calculate the minimum, maximum, and mean age of Medicaid beneficiaries. To calculate age, we have to choose a reference date - let's choose December 31, 2023.
+**Calculating age.**  
+Now let's calculate the minimum, maximum, and mean age of Medicaid beneficiaries. To calculate age, we have to choose a reference date - let's choose December 31, 2023.
 
 ```{r age}
 
@@ -130,7 +132,8 @@ result1
 
 ```
 
-**Selecting people with coverage during a measurement window.** Now let's start to work with time-varying concepts, beginning with coverage start and end dates. Note that people enter and exit the Medicaid data for three reasons: 1) people gain or lose Medicaid coverage (change in eligibility), 2) people move into or out of King County, or 3) people are born or die. With the exception of people entering due to birth, we cannot differentiate between any of the other reasons.
+**Selecting people with coverage during a measurement window.**  
+Now let's start to work with time-varying concepts, beginning with coverage start and end dates. Note that people enter and exit the Medicaid data for three reasons: 1) people gain or lose Medicaid coverage (change in eligibility), 2) people move into or out of King County, or 3) people are born or die. With the exception of people entering due to birth, we cannot differentiate between any of the other reasons.
 
 For this first example, let's find all the people with 1 or more day of Medicaid coverage in 2023. The `[claims].[final_mcaid_elig_timevar]` table contains from and to dates for a host of time-varying concepts - we need to create new from and to dates within our measurement window (2023-01-01 through 2023-12-31) in order to accurately count coverage days.
 
@@ -216,7 +219,8 @@ result1
 
 ```
 
-**Assigning people to a single geography for a given measurement window.** People move and thus when conducting an analysis for a given measurement window (let's use 2023 again), we often want to assign each person only once to geographic concepts, such as ZIP code of residence, to avoid people being counted more than once in a descriptive analysis.
+**Assigning people to a single geography for a given measurement window.**  
+People move and thus when conducting an analysis for a given measurement window (let's use 2023 again), we often want to assign each person only once to geographic concepts, such as ZIP code of residence, to avoid people being counted more than once in a descriptive analysis.
 
 Let's use the following code to 1) assign a single King County ZIP code to each Medicaid beneficiary for 2023, and 2) count distinct people by ZIP code of residence.
 
@@ -279,4 +283,71 @@ result1_cat1 <- result1 %>%
     TRUE ~ id_dcount
   ))
 arrange(result1_cat1, desc(id_dcount))
+```
+
+## Counting health care encounters
+
+**Counting emergency department visits.**  
+The following code counts the total number of *distinct* emergency department (ED) visits by year from 2018-2022, using two different definitions for ED visit. The standard definition used by APDE is the `ed_pophealth_id` field, as uses a broader definition of an ED visit than the `ed_perform_id` field.
+
+```{r ed_visits}
+
+sql_query_1 <- glue::glue_sql(
+  "select a.service_year, a.ed_pophealth_dcount, b.ed_perform_dcount
+  from (
+    select year(last_service_date) as service_year, count(distinct ed_pophealth_id) as ed_pophealth_dcount
+    from claims.final_mcaid_claim_header
+    where year(last_service_date) between 2018 and 2022
+      and ed_pophealth_id is not null
+    group by year(last_service_date)
+  ) as a
+  left join (
+    select year(last_service_date) as service_year, count(distinct ed_perform_id) as ed_perform_dcount
+    from claims.final_mcaid_claim_header
+    where year(last_service_date) between 2018 and 2022
+      and ed_perform_id is not null
+    group by year(last_service_date)
+  ) as b
+  on a.service_year = b.service_year;",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+arrange(result1, service_year)
+
+```
+
+**Counting inpatient hospital stays.**  
+The following code counts the total number of *distinct* acute inpatient stays by year from 2018-2022, which includes hospitalizations for both medical reasons and for labor and delivery.
+
+```{r inpatient}
+
+sql_query_1 <- glue::glue_sql(
+  "select year(last_service_date) as service_year, count(distinct inpatient_id) as inpatient_dcount
+  from claims.final_mcaid_claim_header
+  where year(last_service_date) between 2018 and 2022
+    and inpatient_id is not null
+  group by year(last_service_date);",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+arrange(result1, service_year)
+
+```
+
+**Counting primary care visits.**  
+The following code counts the total number of *distinct* primary care visits by year from 2018-2022.
+
+```{r primary_care_visit}
+
+sql_query_1 <- glue::glue_sql(
+  "select year(last_service_date) as service_year, count(distinct pc_visit_id) as pc_visit_dcount
+  from claims.final_mcaid_claim_header
+  where year(last_service_date) between 2018 and 2022
+    and pc_visit_id is not null
+  group by year(last_service_date);",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+arrange(result1, service_year)
+
 ```
