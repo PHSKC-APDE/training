@@ -3,10 +3,10 @@ title: "Medicaid claims 101"
 author: "Eli Kern | PHSKC-APDE |"
 date: "`r Sys.Date()`"
 output:
-  html_document:
+  github_document:
     toc: true
     toc_depth: 2
-    df_print: paged
+    df_print: "kable"
 ---
 
 ```{r setup, include=FALSE}
@@ -170,7 +170,7 @@ sql_query_1 <- glue::glue_sql(
     where from_date <= {reference_to_date} and to_date >= {reference_from_date}
     and geo_kc = 1
   )
-  select count(distinct id_mcaid)
+  select count(distinct id_mcaid) as id_dcount
   from cov_2023
   where custom_cov_time_day >= 1;",
   .con = db_hhsaw)
@@ -213,7 +213,7 @@ sql_query_1 <- glue::glue_sql(
     where from_date <= {reference_to_date} and to_date >= {reference_from_date}
     and geo_kc = 1
   )
-  select count(distinct id_mcaid)
+  select count(distinct id_mcaid) as id_dcount
   from cov_2023
   where custom_cov_time_day*1.0/{reference_days}*100.0 >= 50.0;",
   .con = db_hhsaw)
@@ -226,7 +226,7 @@ result1
 **Assigning people to a single geography for a given measurement window.**  
 People move and thus when conducting an analysis for a given measurement window (let's use 2023 again), we often want to assign each person only once to geographic concepts, such as ZIP code of residence, to avoid people being counted more than once in a descriptive analysis.
 
-Let's use the following code to 1) assign a single King County ZIP code to each Medicaid beneficiary for 2023, and 2) count distinct people by ZIP code of residence.
+Let's use the following code to 1) assign a single King County ZIP code to each Medicaid beneficiary for 2023, and 2) count distinct people by ZIP code of residence for the 10 ZIP codes with the largest number of Medicaid beneficaries.
 
 ```{r zip code selection}
 
@@ -272,10 +272,11 @@ sql_query_1 <- glue::glue_sql(
     from zip_code_cov_time
   )
   
-  select geo_zip, count(distinct id_mcaid) as id_dcount
+  select top 10 geo_zip, count(distinct id_mcaid) as id_dcount
   from zip_code_ranks
   where geo_zip_rank = 1
-  group by geo_zip;",
+  group by geo_zip
+  order by id_dcount desc;",
   .con = db_hhsaw)
 
 result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
