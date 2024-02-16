@@ -2,7 +2,11 @@
 title: "Medicaid claims 101"
 author: "Eli Kern | PHSKC-APDE |"
 date: "`r Sys.Date()`"
-output: github_document
+output:
+  github_document:
+    toc: true
+    toc_depth: 2
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -351,3 +355,58 @@ result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
 arrange(result1, service_year)
 
 ```
+
+**Leading causes of ED visits, inpatient stays, and primary care visits.**  
+The `[ref].[icdcm_codes]` table provides a 4-level cause categorization framework for grouping raw ICD-CM codes into categories that are a bit easier for us analysts to work with. For ICD-10-CM (diagnosis coding scheme that was introduced to the US in October 2015), this framework can be used to group the 100,666 raw ICD-10-CM codes into a *super-level* category (7 causes), a *broad* category (22 causes), a *mid-level* category (176 causes), and a *detailed* category (515 causes).
+
+For the purpose of this demonstration, we will use the superlevel, broad, and midlevel categorizations to identify the top 10 causes of ED visits, inpatient stays, and primary care visits in 2022, using the primary diagnosis only on each claim.
+
+```{r leading causes}
+
+##Top 10 causes of inpatient stays in 2022
+
+sql_query_1 <- glue::glue_sql(
+  "select top 10 b.ccs_superlevel_desc,
+  case when count(distinct inpatient_id) between 1 and 10 then null else count(distinct inpatient_id) end as inpatient_dcount
+  from [claims].[final_mcaid_claim_header] as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.inpatient_id is not null and year(a.last_service_date) = 2022
+  group by b.ccs_superlevel_desc
+  order by inpatient_dcount desc;",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+
+sql_query_2 <- glue::glue_sql(
+  "select top 10 b.ccs_broad_desc,
+  case when count(distinct inpatient_id) between 1 and 10 then null else count(distinct inpatient_id) end as inpatient_dcount
+  from [claims].[final_mcaid_claim_header] as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.inpatient_id is not null and year(a.last_service_date) = 2022
+  group by b.ccs_broad_desc
+  order by inpatient_dcount desc;",
+  .con = db_hhsaw)
+
+result2 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_2)
+
+sql_query_3 <- glue::glue_sql(
+  "select top 10 b.ccs_midlevel_desc,
+  case when count(distinct inpatient_id) between 1 and 10 then null else count(distinct inpatient_id) end as inpatient_dcount
+  from [claims].[final_mcaid_claim_header] as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.inpatient_id is not null and year(a.last_service_date) = 2022
+  group by b.ccs_midlevel_desc
+  order by inpatient_dcount desc;",
+  .con = db_hhsaw)
+
+result3 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_3)
+
+arrange(result1, desc(inpatient_dcount))
+arrange(result2, desc(inpatient_dcount))
+arrange(result3, desc(inpatient_dcount))
+
+```
+

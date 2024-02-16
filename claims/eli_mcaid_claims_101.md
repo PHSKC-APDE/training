@@ -1,7 +1,13 @@
 Medicaid claims 101
 ================
 Eli Kern \| PHSKC-APDE \|
-2024-02-15
+2024-02-16
+
+- [Welcome](#welcome)
+- [Setup the environment](#setup-the-environment)
+- [Counting distinct individuals in claims
+  data](#counting-distinct-individuals-in-claims-data)
+- [Counting health care encounters](#counting-health-care-encounters)
 
 ## Welcome
 
@@ -96,14 +102,13 @@ result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
 arrange(result1, race_eth)
 ```
 
-    ##   race_eth id_dcount
-    ## 1    AI/AN     37172
-    ## 2    Asian    145570
-    ## 3    Black    187825
-    ## 4   Latino    194628
-    ## 5    NH/PI     80267
-    ## 6  Unknown    140605
-    ## 7    White    567704
+<div data-pagedtable="false">
+
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["race_eth"],"name":[1],"type":["chr"],"align":["left"]},{"label":["id_dcount"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"AI/AN","2":"37172"},{"1":"Asian","2":"145570"},{"1":"Black","2":"187825"},{"1":"Latino","2":"194628"},{"1":"NH/PI","2":"80267"},{"1":"Unknown","2":"140605"},{"1":"White","2":"567704"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+
+</div>
 
 **Counting people by mutually exclusive race/ethnicity categories.**  
 Now let’s count people using mutually exclusive race/ethnicity
@@ -121,15 +126,13 @@ result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
 arrange(result1, race_eth_me)
 ```
 
-    ##   race_eth_me id_dcount
-    ## 1       AI/AN     16556
-    ## 2       Asian    120473
-    ## 3       Black    149297
-    ## 4      Latino     92745
-    ## 5    Multiple    155040
-    ## 6       NH/PI     54407
-    ## 7     Unknown    140605
-    ## 8       White    450610
+<div data-pagedtable="false">
+
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["race_eth_me"],"name":[1],"type":["chr"],"align":["left"]},{"label":["id_dcount"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"AI/AN","2":"16556"},{"1":"Asian","2":"120473"},{"1":"Black","2":"149297"},{"1":"Latino","2":"92745"},{"1":"Multiple","2":"155040"},{"1":"NH/PI","2":"54407"},{"1":"Unknown","2":"140605"},{"1":"White","2":"450610"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+
+</div>
 
 **Calculating age.**  
 Now let’s calculate the minimum, maximum, and mean age of Medicaid
@@ -156,8 +159,13 @@ result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
 result1
 ```
 
-    ##   age_min age_max age_mean
-    ## 1       0     123     34.6
+<div data-pagedtable="false">
+
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["age_min"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["age_max"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["age_mean"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"0","2":"123","3":"34.6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+
+</div>
 
 **Selecting people with coverage during a measurement window.**  
 Now let’s start to work with time-varying concepts, beginning with
@@ -212,8 +220,13 @@ result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
 result1
 ```
 
-    ##         
-    ## 1 606890
+<div data-pagedtable="false">
+
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":[1],"type":["int"],"align":["right"]}],"data":[{"1":"606890"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+
+</div>
 
 For the second example, let’s find all people with 50% or more of 2023
 covered by Medicaid.
@@ -257,8 +270,13 @@ result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
 result1
 ```
 
-    ##         
-    ## 1 464202
+<div data-pagedtable="false">
+
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":[1],"type":["int"],"align":["right"]}],"data":[{"1":"464202"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+
+</div>
 
 **Assigning people to a single geography for a given measurement
 window.**  
@@ -331,123 +349,13 @@ result1_cat1 <- result1 %>%
 arrange(result1_cat1, desc(id_dcount))
 ```
 
-    ##     geo_zip id_dcount
-    ## 1     98003     28026
-    ## 2     98002     24223
-    ## 3     98032     21613
-    ## 4     98023     21508
-    ## 5     98030     20847
-    ## 6     98118     20246
-    ## 7     98031     19349
-    ## 8     98168     18280
-    ## 9     98198     16811
-    ## 10    98092     16669
-    ## 11    98001     15879
-    ## 12    98042     15542
-    ## 13    98133     15516
-    ## 14    98188     13714
-    ## 15    98058     13141
-    ## 16    98125     11474
-    ## 17    98144     10974
-    ## 18    98146     10878
-    ## 19    98108     10869
-    ## 20    98034     10811
-    ## 21    98178     10768
-    ## 22    98056     10633
-    ## 23    98052     10423
-    ## 24    98122      9944
-    ## 25    98104      9550
-    ## 26    98106      9407
-    ## 27    98055      9072
-    ## 28    98155      9008
-    ## 29    98059      8564
-    ## 30    98103      8184
-    ## 31    98115      7930
-    ## 32    98105      7867
-    ## 33    98007      7770
-    ## 34    98126      6800
-    ## 35    98038      6701
-    ## 36    98006      6122
-    ## 37    98022      6008
-    ## 38    98166      5566
-    ## 39    98148      5244
-    ## 40    98057      5241
-    ## 41    98033      5100
-    ## 42    98101      4938
-    ## 43    98011      4928
-    ## 44    98121      4715
-    ## 45    98004      4587
-    ## 46    98008      4506
-    ## 47    98109      4451
-    ## 48    98028      4375
-    ## 49    98027      4324
-    ## 50    98107      4294
-    ## 51    98117      4178
-    ## 52    98102      4150
-    ## 53    98029      4061
-    ## 54    98116      3785
-    ## 55    98047      3752
-    ## 56    98119      3299
-    ## 57    98005      3018
-    ## 58    98112      2868
-    ## 59    98072      2697
-    ## 60    98177      2618
-    ## 61    98070      2562
-    ## 62    98053      2363
-    ## 63    98045      2232
-    ## 64    98040      2224
-    ## 65    98199      2216
-    ## 66    98074      2104
-    ## 67    98136      2104
-    ## 68    98065      2075
-    ## 69    98019      1890
-    ## 70    98075      1883
-    ## 71    98010      1365
-    ## 72    98014      1180
-    ## 73    98077      1058
-    ## 74    98024       804
-    ## 75    98051       700
-    ## 76    98354       444
-    ## 77    98134       443
-    ## 78    98039       162
-    ## 79    98195       152
-    ## 80    98009       129
-    ## 81    98062       102
-    ## 82    98288        88
-    ## 83    98071        81
-    ## 84    98224        77
-    ## 85    98063        69
-    ## 86    98093        64
-    ## 87    98111        51
-    ## 88    98064        50
-    ## 89    98050        38
-    ## 90    98138        33
-    ## 91    98025        32
-    ## 92    98083        32
-    ## 93    98035        30
-    ## 94    98114        28
-    ## 95    98145        28
-    ## 96    98068        27
-    ## 97    98127        20
-    ## 98    98015        19
-    ## 99    98113        17
-    ## 100   98165        15
-    ## 101   98073        11
-    ## 102   98089        NA
-    ## 103   98194        NA
-    ## 104   98160        NA
-    ## 105   98141        NA
-    ## 106   98139        NA
-    ## 107   98251        NA
-    ## 108   98124        NA
-    ## 109   98185        NA
-    ## 110   98174        NA
-    ## 111   98131        NA
-    ## 112   98164        NA
-    ## 113   98041        NA
-    ## 114   98013        NA
-    ## 115   98175        NA
-    ## 116   98161        NA
+<div data-pagedtable="false">
+
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["geo_zip"],"name":[1],"type":["chr"],"align":["left"]},{"label":["id_dcount"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"98003","2":"28026"},{"1":"98002","2":"24223"},{"1":"98032","2":"21613"},{"1":"98023","2":"21508"},{"1":"98030","2":"20847"},{"1":"98118","2":"20246"},{"1":"98031","2":"19349"},{"1":"98168","2":"18280"},{"1":"98198","2":"16811"},{"1":"98092","2":"16669"},{"1":"98001","2":"15879"},{"1":"98042","2":"15542"},{"1":"98133","2":"15516"},{"1":"98188","2":"13714"},{"1":"98058","2":"13141"},{"1":"98125","2":"11474"},{"1":"98144","2":"10974"},{"1":"98146","2":"10878"},{"1":"98108","2":"10869"},{"1":"98034","2":"10811"},{"1":"98178","2":"10768"},{"1":"98056","2":"10633"},{"1":"98052","2":"10423"},{"1":"98122","2":"9944"},{"1":"98104","2":"9550"},{"1":"98106","2":"9407"},{"1":"98055","2":"9072"},{"1":"98155","2":"9008"},{"1":"98059","2":"8564"},{"1":"98103","2":"8184"},{"1":"98115","2":"7930"},{"1":"98105","2":"7867"},{"1":"98007","2":"7770"},{"1":"98126","2":"6800"},{"1":"98038","2":"6701"},{"1":"98006","2":"6122"},{"1":"98022","2":"6008"},{"1":"98166","2":"5566"},{"1":"98148","2":"5244"},{"1":"98057","2":"5241"},{"1":"98033","2":"5100"},{"1":"98101","2":"4938"},{"1":"98011","2":"4928"},{"1":"98121","2":"4715"},{"1":"98004","2":"4587"},{"1":"98008","2":"4506"},{"1":"98109","2":"4451"},{"1":"98028","2":"4375"},{"1":"98027","2":"4324"},{"1":"98107","2":"4294"},{"1":"98117","2":"4178"},{"1":"98102","2":"4150"},{"1":"98029","2":"4061"},{"1":"98116","2":"3785"},{"1":"98047","2":"3752"},{"1":"98119","2":"3299"},{"1":"98005","2":"3018"},{"1":"98112","2":"2868"},{"1":"98072","2":"2697"},{"1":"98177","2":"2618"},{"1":"98070","2":"2562"},{"1":"98053","2":"2363"},{"1":"98045","2":"2232"},{"1":"98040","2":"2224"},{"1":"98199","2":"2216"},{"1":"98136","2":"2104"},{"1":"98074","2":"2104"},{"1":"98065","2":"2075"},{"1":"98019","2":"1890"},{"1":"98075","2":"1883"},{"1":"98010","2":"1365"},{"1":"98014","2":"1180"},{"1":"98077","2":"1058"},{"1":"98024","2":"804"},{"1":"98051","2":"700"},{"1":"98354","2":"444"},{"1":"98134","2":"443"},{"1":"98039","2":"162"},{"1":"98195","2":"152"},{"1":"98009","2":"129"},{"1":"98062","2":"102"},{"1":"98288","2":"88"},{"1":"98071","2":"81"},{"1":"98224","2":"77"},{"1":"98063","2":"69"},{"1":"98093","2":"64"},{"1":"98111","2":"51"},{"1":"98064","2":"50"},{"1":"98050","2":"38"},{"1":"98138","2":"33"},{"1":"98025","2":"32"},{"1":"98083","2":"32"},{"1":"98035","2":"30"},{"1":"98145","2":"28"},{"1":"98114","2":"28"},{"1":"98068","2":"27"},{"1":"98127","2":"20"},{"1":"98015","2":"19"},{"1":"98113","2":"17"},{"1":"98165","2":"15"},{"1":"98073","2":"11"},{"1":"98089","2":"NA"},{"1":"98194","2":"NA"},{"1":"98041","2":"NA"},{"1":"98175","2":"NA"},{"1":"98013","2":"NA"},{"1":"98251","2":"NA"},{"1":"98139","2":"NA"},{"1":"98160","2":"NA"},{"1":"98141","2":"NA"},{"1":"98161","2":"NA"},{"1":"98124","2":"NA"},{"1":"98174","2":"NA"},{"1":"98131","2":"NA"},{"1":"98164","2":"NA"},{"1":"98185","2":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+
+</div>
 
 ## Counting health care encounters
 
@@ -482,12 +390,13 @@ result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
 arrange(result1, service_year)
 ```
 
-    ##   service_year ed_pophealth_dcount ed_perform_dcount
-    ## 1         2018              253029            232439
-    ## 2         2019              249888            229344
-    ## 3         2020              198647            181788
-    ## 4         2021              227801            208541
-    ## 5         2022              245984            227378
+<div data-pagedtable="false">
+
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["service_year"],"name":[1],"type":["int"],"align":["right"]},{"label":["ed_pophealth_dcount"],"name":[2],"type":["int"],"align":["right"]},{"label":["ed_perform_dcount"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"2018","2":"253029","3":"232439"},{"1":"2019","2":"249888","3":"229344"},{"1":"2020","2":"198647","3":"181788"},{"1":"2021","2":"227801","3":"208541"},{"1":"2022","2":"245984","3":"227378"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+
+</div>
 
 **Counting inpatient hospital stays.**  
 The following code counts the total number of *distinct* acute inpatient
@@ -507,12 +416,13 @@ result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
 arrange(result1, service_year)
 ```
 
-    ##   service_year inpatient_dcount
-    ## 1         2018            24892
-    ## 2         2019            26793
-    ## 3         2020            25914
-    ## 4         2021            33195
-    ## 5         2022            31076
+<div data-pagedtable="false">
+
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["service_year"],"name":[1],"type":["int"],"align":["right"]},{"label":["inpatient_dcount"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"2018","2":"26926"},{"1":"2019","2":"29048"},{"1":"2020","2":"28191"},{"1":"2021","2":"33690"},{"1":"2022","2":"31837"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+
+</div>
 
 **Counting primary care visits.**  
 The following code counts the total number of *distinct* primary care
@@ -531,9 +441,103 @@ result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
 arrange(result1, service_year)
 ```
 
-    ##   service_year pc_visit_dcount
-    ## 1         2018         1108715
-    ## 2         2019         1054307
-    ## 3         2020          921956
-    ## 4         2021         1066642
-    ## 5         2022         1009858
+<div data-pagedtable="false">
+
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["service_year"],"name":[1],"type":["int"],"align":["right"]},{"label":["pc_visit_dcount"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"2018","2":"1108715"},{"1":"2019","2":"1054307"},{"1":"2020","2":"921956"},{"1":"2021","2":"1066642"},{"1":"2022","2":"1009858"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+
+</div>
+
+**Leading causes of ED visits, inpatient stays, and primary care
+visits.**  
+The `[ref].[icdcm_codes]` table provides a 4-level cause categorization
+framework for grouping raw ICD-CM codes into categories that are a bit
+easier for us analysts to work with. For ICD-10-CM (diagnosis coding
+scheme that was introduced to the US in October 2015), this framework
+can be used to group the 100,666 raw ICD-10-CM codes into a
+*super-level* category (7 causes), a *broad* category (22 causes), a
+*mid-level* category (176 causes), and a *detailed* category (515
+causes).
+
+For the purpose of this demonstration, we will use the superlevel,
+broad, and midlevel categorizations to identify the top 10 causes of ED
+visits, inpatient stays, and primary care visits in 2022, using the
+primary diagnosis only on each claim.
+
+``` r
+##Top 10 causes of inpatient stays in 2022
+
+sql_query_1 <- glue::glue_sql(
+  "select top 10 b.ccs_superlevel_desc,
+  case when count(distinct inpatient_id) between 1 and 10 then null else count(distinct inpatient_id) end as inpatient_dcount
+  from [claims].[final_mcaid_claim_header] as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.inpatient_id is not null and year(a.last_service_date) = 2022
+  group by b.ccs_superlevel_desc
+  order by inpatient_dcount desc;",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+
+sql_query_2 <- glue::glue_sql(
+  "select top 10 b.ccs_broad_desc,
+  case when count(distinct inpatient_id) between 1 and 10 then null else count(distinct inpatient_id) end as inpatient_dcount
+  from [claims].[final_mcaid_claim_header] as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.inpatient_id is not null and year(a.last_service_date) = 2022
+  group by b.ccs_broad_desc
+  order by inpatient_dcount desc;",
+  .con = db_hhsaw)
+
+result2 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_2)
+
+sql_query_3 <- glue::glue_sql(
+  "select top 10 b.ccs_midlevel_desc,
+  case when count(distinct inpatient_id) between 1 and 10 then null else count(distinct inpatient_id) end as inpatient_dcount
+  from [claims].[final_mcaid_claim_header] as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.inpatient_id is not null and year(a.last_service_date) = 2022
+  group by b.ccs_midlevel_desc
+  order by inpatient_dcount desc;",
+  .con = db_hhsaw)
+
+result3 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_3)
+
+arrange(result1, desc(inpatient_dcount))
+```
+
+<div data-pagedtable="false">
+
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["ccs_superlevel_desc"],"name":[1],"type":["chr"],"align":["left"]},{"label":["inpatient_dcount"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"Pregnancy or birth complications","2":"9632"},{"1":"Chronic diseases","2":"8355"},{"1":"Behavioral health disorders","2":"5764"},{"1":"Infectious diseases","2":"4359"},{"1":"Not classified","2":"2143"},{"1":"Injuries","2":"1639"},{"1":"Congenital anomalies","2":"118"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+
+</div>
+
+``` r
+arrange(result2, desc(inpatient_dcount))
+```
+
+<div data-pagedtable="false">
+
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["ccs_broad_desc"],"name":[1],"type":["chr"],"align":["left"]},{"label":["inpatient_dcount"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"Certain conditions originating in the perinatal period","2":"5846"},{"1":"Mental, behavioral and neurodevelopmental disorders","2":"5727"},{"1":"Pregnancy, childbirth and the puerperium","2":"4476"},{"1":"Certain infectious and parasitic diseases","2":"3091"},{"1":"Diseases of the circulatory system","2":"2714"},{"1":"Diseases of the digestive system","2":"1860"},{"1":"Injury, poisoning and certain other consequences of external causes","2":"1738"},{"1":"Endocrine, nutritional and metabolic diseases","2":"1473"},{"1":"Diseases of the respiratory system","2":"1312"},{"1":"Diseases of the genitourinary system","2":"625"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+
+</div>
+
+``` r
+arrange(result3, desc(inpatient_dcount))
+```
+
+<div data-pagedtable="false">
+
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["ccs_midlevel_desc"],"name":[1],"type":["chr"],"align":["left"]},{"label":["inpatient_dcount"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"Liveborn","2":"5618"},{"1":"Schizophrenia and other psychotic disorders","2":"2371"},{"1":"Septicemia","2":"2242"},{"1":"Mood disorders","2":"1896"},{"1":"Hypertension","2":"1124"},{"1":"Diabetes mellitus","2":"891"},{"1":"Complications due to a procedure or operation","2":"747"},{"1":"Alcohol-related disorders","2":"744"},{"1":"Complications during labor","2":"742"},{"1":"Viral infection","2":"671"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+
+</div>
