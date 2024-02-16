@@ -8,6 +8,8 @@ Eli Kern \| PHSKC-APDE \|
 - [Counting distinct individuals in claims
   data](#counting-distinct-individuals-in-claims-data)
 - [Counting health care encounters](#counting-health-care-encounters)
+- [Identifying reasons for health care encounters (i.e.,
+  diagnoses)](#identifying-reasons-for-health-care-encounters-ie-diagnoses)
 
 ## Welcome
 
@@ -485,8 +487,8 @@ arrange(result1, service_year)
 
 </div>
 
-**Leading causes of ED visits, inpatient stays, and primary care
-visits.**  
+## Identifying reasons for health care encounters (i.e., diagnoses)
+
 The `[ref].[icdcm_codes]` table provides a 4-level cause categorization
 framework for grouping raw ICD-CM codes into categories that are a bit
 easier for us analysts to work with. For ICD-10-CM (diagnosis coding
@@ -501,9 +503,110 @@ broad, and midlevel categorizations to identify the top 10 causes of ED
 visits, inpatient stays, and primary care visits in 2022, using the
 primary diagnosis only on each claim.
 
-``` r
-##Top 10 causes of inpatient stays in 2022
+**Leading causes of ED visits in 2022.**
 
+``` r
+sql_query_1 <- glue::glue_sql(
+  "select top 10 b.ccs_superlevel_desc,
+  case when count(distinct ed_pophealth_id) between 1 and 10 then null else count(distinct ed_pophealth_id) end as ed_pophealth_dcount
+  from [claims].[final_mcaid_claim_header] as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.ed_pophealth_id is not null and year(a.last_service_date) = 2022
+  group by b.ccs_superlevel_desc
+  order by ed_pophealth_dcount desc;",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+
+sql_query_2 <- glue::glue_sql(
+  "select top 10 b.ccs_broad_desc,
+  case when count(distinct ed_pophealth_id) between 1 and 10 then null else count(distinct ed_pophealth_id) end as ed_pophealth_dcount
+  from [claims].[final_mcaid_claim_header] as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.ed_pophealth_id is not null and year(a.last_service_date) = 2022
+  group by b.ccs_broad_desc
+  order by ed_pophealth_dcount desc;",
+  .con = db_hhsaw)
+
+result2 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_2)
+
+sql_query_3 <- glue::glue_sql(
+  "select top 10 b.ccs_midlevel_desc,
+  case when count(distinct ed_pophealth_id) between 1 and 10 then null else count(distinct ed_pophealth_id) end as ed_pophealth_dcount
+  from [claims].[final_mcaid_claim_header] as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.ed_pophealth_id is not null and year(a.last_service_date) = 2022
+  group by b.ccs_midlevel_desc
+  order by ed_pophealth_dcount desc;",
+  .con = db_hhsaw)
+
+result3 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_3)
+
+arrange(result1, desc(ed_pophealth_dcount))
+```
+
+<div class="kable-table">
+
+| ccs_superlevel_desc              | ed_pophealth_dcount |
+|:---------------------------------|--------------------:|
+| Chronic diseases                 |               92638 |
+| Infectious diseases              |               63407 |
+| Not classified                   |               55292 |
+| Injuries                         |               40245 |
+| Behavioral health disorders      |               18954 |
+| Pregnancy or birth complications |               13494 |
+| Congenital anomalies             |                 101 |
+
+</div>
+
+``` r
+arrange(result2, desc(ed_pophealth_dcount))
+```
+
+<div class="kable-table">
+
+| ccs_broad_desc                                                                          | ed_pophealth_dcount |
+|:----------------------------------------------------------------------------------------|--------------------:|
+| Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified |               51943 |
+| Injury, poisoning and certain other consequences of external causes                     |               40130 |
+| Diseases of the respiratory system                                                      |               27417 |
+| Certain infectious and parasitic diseases                                               |               21014 |
+| Mental, behavioral and neurodevelopmental disorders                                     |               17460 |
+| Diseases of the circulatory system                                                      |               17228 |
+| Factors influencing health status and contact with health services                      |               16697 |
+| Diseases of the musculoskeletal system and connective tissue                            |               15542 |
+| Pregnancy, childbirth and the puerperium                                                |               12948 |
+| Diseases of the genitourinary system                                                    |               12855 |
+
+</div>
+
+``` r
+arrange(result3, desc(ed_pophealth_dcount))
+```
+
+<div class="kable-table">
+
+| ccs_midlevel_desc                                    | ed_pophealth_dcount |
+|:-----------------------------------------------------|--------------------:|
+| Abdominal pain                                       |               16464 |
+| Viral infection                                      |               15828 |
+| Immunizations and screening for infectious disease   |               12223 |
+| Other upper respiratory infections                   |               11983 |
+| Nonspecific chest pain                               |                9081 |
+| Skin and subcutaneous tissue infections              |                9024 |
+| Other injuries and conditions due to external causes |                8982 |
+| Superficial injury; contusion                        |                7764 |
+| Musculoskeletal pain (not low back pain)             |                7754 |
+| Other complications of pregnancy                     |                7740 |
+
+</div>
+
+**Leading causes of inpatient stays in 2022**
+
+``` r
 sql_query_1 <- glue::glue_sql(
   "select top 10 b.ccs_superlevel_desc,
   case when count(distinct inpatient_id) between 1 and 10 then null else count(distinct inpatient_id) end as inpatient_dcount
@@ -599,5 +702,106 @@ arrange(result3, desc(inpatient_dcount))
 | Alcohol-related disorders                     |              744 |
 | Complications during labor                    |              742 |
 | Viral infection                               |              671 |
+
+</div>
+
+**Leading causes of primary care visits in 2022**
+
+``` r
+sql_query_1 <- glue::glue_sql(
+  "select top 10 b.ccs_superlevel_desc,
+  case when count(distinct pc_visit_id) between 1 and 10 then null else count(distinct pc_visit_id) end as pc_visit_dcount
+  from [claims].[final_mcaid_claim_header] as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.pc_visit_id is not null and year(a.last_service_date) = 2022
+  group by b.ccs_superlevel_desc
+  order by pc_visit_dcount desc;",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+
+sql_query_2 <- glue::glue_sql(
+  "select top 10 b.ccs_broad_desc,
+  case when count(distinct pc_visit_id) between 1 and 10 then null else count(distinct pc_visit_id) end as pc_visit_dcount
+  from [claims].[final_mcaid_claim_header] as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.pc_visit_id is not null and year(a.last_service_date) = 2022
+  group by b.ccs_broad_desc
+  order by pc_visit_dcount desc;",
+  .con = db_hhsaw)
+
+result2 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_2)
+
+sql_query_3 <- glue::glue_sql(
+  "select top 10 b.ccs_midlevel_desc,
+  case when count(distinct pc_visit_id) between 1 and 10 then null else count(distinct pc_visit_id) end as pc_visit_dcount
+  from [claims].[final_mcaid_claim_header] as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.pc_visit_id is not null and year(a.last_service_date) = 2022
+  group by b.ccs_midlevel_desc
+  order by pc_visit_dcount desc;",
+  .con = db_hhsaw)
+
+result3 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_3)
+
+arrange(result1, desc(pc_visit_dcount))
+```
+
+<div class="kable-table">
+
+| ccs_superlevel_desc              | pc_visit_dcount |
+|:---------------------------------|----------------:|
+| Chronic diseases                 |          456876 |
+| Not classified                   |          280682 |
+| Infectious diseases              |          125408 |
+| Behavioral health disorders      |           93512 |
+| Injuries                         |           31698 |
+| Pregnancy or birth complications |           25429 |
+| Congenital anomalies             |            5586 |
+
+</div>
+
+``` r
+arrange(result2, desc(pc_visit_dcount))
+```
+
+<div class="kable-table">
+
+| ccs_broad_desc                                                                          | pc_visit_dcount |
+|:----------------------------------------------------------------------------------------|----------------:|
+| Factors influencing health status and contact with health services                      |          227474 |
+| Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified |          122138 |
+| Mental, behavioral and neurodevelopmental disorders                                     |           85914 |
+| Diseases of the musculoskeletal system and connective tissue                            |           84223 |
+| Endocrine, nutritional and metabolic diseases                                           |           63765 |
+| Diseases of the circulatory system                                                      |           55000 |
+| Diseases of the respiratory system                                                      |           53029 |
+| Injury, poisoning and certain other consequences of external causes                     |           47225 |
+| Diseases of the genitourinary system                                                    |           45583 |
+| Diseases of the nervous system                                                          |           41632 |
+
+</div>
+
+``` r
+arrange(result3, desc(pc_visit_dcount))
+```
+
+<div class="kable-table">
+
+| ccs_midlevel_desc                                  | pc_visit_dcount |
+|:---------------------------------------------------|----------------:|
+| Medical examination/evaluation                     |          141567 |
+| Immunizations and screening for infectious disease |           45075 |
+| Diabetes mellitus                                  |           41298 |
+| Other skin disorders                               |           38118 |
+| Other signs, symptoms and findings                 |           31036 |
+| Other nervous system disorders                     |           30122 |
+| Musculoskeletal pain (not low back pain)           |           29951 |
+| Reproductive disorders and disease                 |           29830 |
+| Other upper respiratory infections                 |           27762 |
+| Hypertension                                       |           25173 |
 
 </div>
