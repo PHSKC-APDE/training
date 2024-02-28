@@ -2,6 +2,7 @@
 title: "Introduction To R Markdown"
 author: "Ronald W. Buie"
 format: html
+output-file: "Lesson 11 Rendered.html"
 toc: true
 toc-depth: 2
 number-sections: true
