@@ -1,8 +1,10 @@
 ---
-title: "r_practice_11_documentation_with_markdown_and_quarto"
+title: "Introduction To R Markdown"
 author: "Ronald W. Buie"
 format: html
-output-file: "README.HTML"
+toc: true
+toc-depth: 2
+number-sections: true
 ---
 
 This is a training session on the basic usage of R markdown and R studio's notebook functionality to better document your work and to generate reports for customers.
@@ -35,26 +37,7 @@ R notebooks has 3 basic components.
 
 The YAML header is at the top, and begins and ends with "---" marks. It takes certain keywords and options. The header in this document provides a good example for most option you might want to use.You can read more about headers [here](https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-anatomy.html).
 
-For more complex documents, I recommend a yaml header like this:
-
-## Code Chunks
-
-Code chunks (or chunks) are sections of your document that are meant to be read like you would a normal programming language script. R code chunks begin with "```{r}" and end with "```". R Studio also supports additional programming languages. For example, if you install a Python interpreter, you can begin a chunk with "```{python}" in order to run python code in that chunk.
-
-```{r an example code chunk}
-#you can code normally here
-x <- 2
-```
-
-code chunks support a variety of options for hwo the chunk is handled when knitting the document. Notably, you can choose for a chunk to be ran or not, the code to be hidden or not, for its output to be visible or not, for errors and warnings to be visible, as well as many other options such as the size of figures generated in the chunk.
-
-```{r disabling a chunk from running, eval=FALSE}
-#this code will be visible, but will not run when knitting
-
-x<- 4
-```
-
-Finally, you can also run r code inside of your markdown text. This is useful for calling variables inline, which would let you have numerical portions of your report always be up to date as the underlying data change. In this case, x still equals `r print(x)` because we set the second code chunk to not run when we set eval=FALSE.
+For more complex documents, I recommend exploring options such as multiple authors, table of context, and additional output formats and files.
 
 ## Text
 
@@ -93,7 +76,7 @@ Ordered list
 2. second
 3. third
 
-Note, when you knit this document, it will show the same order, below as well...
+Note, when you knit this document, it will show the same order below as well...
  
 1. first
 3. third
@@ -104,17 +87,17 @@ Note, when you knit this document, it will show the same order, below as well...
 
 Hyperlinks let you point to other parts of your document, directories, and web pages.
 
-A link to [google](www.google.com)
+A link to [google](http://www.google.com)
 
 You can also organize links in a footnote style:
 
 Your [link to google][couldbeanything] can also have different visible text.
 
-[couldbeanything]: www.google.com
+[couldbeanything]: http://www.google.com
 
 Or the reference to your [link]
 
-[link]: www.google.com
+[link]: http://www.google.com
 
 Of course, these links can also point to local files like [another R doc](./r_practice_0_setup.R) but this is dependent on the user having the file in the same (relative) location.
 
@@ -182,14 +165,40 @@ R Markdown natively supports most latex math notation. you can input it inline l
 You can also section off a block of latex code like this...
 
 $$
-(3+4)+(6+4)+(9+4)+(12+4) =
-\\
-\sum^{4}_{1}{3x+4} =
-\\
-= 46
-
+\begin{aligned}
+f(x) &= \sum^{4}_{1}{3x+4} \\
+&= (3+4)+(6+4)+(9+4)+(12+4) \\
+&= 46
+\end{aligned}
 $$
 
 Notice, if you are coding this in R studio, you can see a preview as you type. If the preview is not visible, your code is probably not valid, or the project is busy running other R code.
 
 Also note that this particularly functionality is specific to R markdown. Github has a similar functionality, but it is slightly different and latex code may need to be modified to render correctly (for instance, if in a README.md file for display on github.com.)
+
+## Code Chunks
+
+Code chunks (or chunks) are sections of your document that are meant to be read like you would a normal programming language script. R code chunks begin with "```{r}" and end with "```". R Studio also supports additional programming languages. For example, if you install a Python interpreter, you can begin a chunk with "```{python}" in order to run python code in that chunk.
+
+```{r an example code chunk}
+#you can code normally here
+x <- 2
+```
+
+code chunks support a variety of options for hwo the chunk is handled when knitting the document. Notably, you can choose for a chunk to be ran or not, the code to be hidden or not, for its output to be visible or not, for errors and warnings to be visible, as well as many other options such as the size of figures generated in the chunk.
+
+```{r disabling a chunk from running, eval=FALSE}
+#this code will be visible, but will not run when knitting
+
+x <- 4
+```
+
+Finally, you can also run r code inside of your markdown text. This is useful for calling variables inline, which would let you have numerical portions of your report always be up to date as the underlying data change. 
+
+In this case, x still equals **`r x`** because we set the second code chunk to not run when we set "eval=FALSE".
+
+# Closing
+
+Now, if you haven't already, select "knit" or "render" at the top of the page to render this document into an html file. 
+
+The resulting file will popup in your browser, and you can see the resulting output to compare how the code looks in comparison.
