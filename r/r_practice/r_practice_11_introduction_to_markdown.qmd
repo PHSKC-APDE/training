@@ -1,0 +1,195 @@
+---
+title: "r_practice_11_documentation_with_markdown_and_quarto"
+author: "Ronald W. Buie"
+format: html
+output-file: "README.HTML"
+---
+
+This is a training session on the basic usage of R markdown and R studio's notebook functionality to better document your work and to generate reports for customers.
+
+# What is a notebook?
+
+Notebooks are a popular approach to documenting your work as-you-go across programming in research, data sciences, and application prototyping.
+
+- Report generation: notebooks streamline the creation of technical reports by combining the calculation, visualization, and typesetting of final prose all into one document.
+- Documentation: notebooks encourage human readable and verbose documentation of analytical processes and design decisions, including those that may not show up in the programming code itself.
+
+A notebook document alternates between sections of typeset prose and programming code, so that you can get the best of both worlds.
+
+When you compile ("knit") a notebook, you both run the code and generate a typeset document, such as an html, pdf, or docx file. This document can contain outputs of the code, such as charts. You can also chose to show, or hide the code in the final document.
+
+Notebook functionality is integrated into R studio.
+
+## Some basic terminology:
+
+- R Studio: An Integrated Development Environment specialized for R programming
+- Markdown: A markup language (text formatting language) designed to be easy to type and easy to read when it isn't compiled, but to result in well formatted text when it is compiled. Here we use a flavor of markdown specific to R, simply called "R Markdown".
+- (R/Quarto) Notebook: The notebook is the extension of the IDE that lets you blend your markdown language and your code. At its most simple, you can use it to alternate between markdown and programming code. At its most complex there really is no limit, but practical applications of notebooks include many web pages and dashboards.
+  - knit(ting): the process of running all code and rendering the code, text, and any additional instructions into a typeset document
+
+# Your first notebook
+
+R notebooks has 3 basic components. 
+
+## YAML Header
+
+The YAML header is at the top, and begins and ends with "---" marks. It takes certain keywords and options. The header in this document provides a good example for most option you might want to use.You can read more about headers [here](https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-anatomy.html).
+
+For more complex documents, I recommend a yaml header like this:
+
+## Code Chunks
+
+Code chunks (or chunks) are sections of your document that are meant to be read like you would a normal programming language script. R code chunks begin with "```{r}" and end with "```". R Studio also supports additional programming languages. For example, if you install a Python interpreter, you can begin a chunk with "```{python}" in order to run python code in that chunk.
+
+```{r an example code chunk}
+#you can code normally here
+x <- 2
+```
+
+code chunks support a variety of options for hwo the chunk is handled when knitting the document. Notably, you can choose for a chunk to be ran or not, the code to be hidden or not, for its output to be visible or not, for errors and warnings to be visible, as well as many other options such as the size of figures generated in the chunk.
+
+```{r disabling a chunk from running, eval=FALSE}
+#this code will be visible, but will not run when knitting
+
+x<- 4
+```
+
+Finally, you can also run r code inside of your markdown text. This is useful for calling variables inline, which would let you have numerical portions of your report always be up to date as the underlying data change. In this case, x still equals `r print(x)` because we set the second code chunk to not run when we set eval=FALSE.
+
+## Text
+
+Any section that is not a chunk, or the header, is markdown text. You can use special characters to choose how your text will be formatted when you knit the document. This covers some basics, but you can read more [here](https://bookdown.org/yihui/rmarkdown-cookbook/document-elements.html).
+
+### Section headers
+
+You may notice in this file that some sections are prefaced with "\#" the hash symbols indicate section headers. The number of hashes indicate the header depth. Headers are important for accessibility and readability. They also can be combined with typesetting options, for example themes in word and PowerPoint documents give special formatting to different header levels.
+
+###  New lines and paragraphs
+
+When writing a paragraph, Markdown will, by default, treat spaces and returns as the same when knitting.  one will be rendered as a space, two or more will be rendered as a new line. If you want multiple spaces in the same line, you need to escape the additional spaces, as indicated [here](https://bookdown.org/yihui/rmarkdown-cookbook/special-chars.html). 
+
+one space
+
+two  spaces
+
+one
+return
+
+two
+
+returns
+
+### Lists
+
+Unordered
+
+* an item
+* another item
+* yet another
+
+Ordered list
+
+1. first
+2. second
+3. third
+
+Note, when you knit this document, it will show the same order, below as well...
+ 
+1. first
+3. third
+2. second
+
+
+### Links
+
+Hyperlinks let you point to other parts of your document, directories, and web pages.
+
+A link to [google](www.google.com)
+
+You can also organize links in a footnote style:
+
+Your [link to google][couldbeanything] can also have different visible text.
+
+[couldbeanything]: www.google.com
+
+Or the reference to your [link]
+
+[link]: www.google.com
+
+Of course, these links can also point to local files like [another R doc](./r_practice_0_setup.R) but this is dependent on the user having the file in the same (relative) location.
+
+Another great use for links are sections of your document.
+
+You can make links to any of your headings, like so
+
+This will take you to the [top](#what-is-a-notebook)
+
+And this will take you to the [next](#bold,-italics,-superscript-and-strikethrough) section.
+
+Note that spaces need to be replaced with "-" and you only need to put one "#" at the begenning.
+
+### Bold, italics, superscript and strikethrough
+
+**bold**
+
+*italics*
+
+_also italics_
+
+superscript^lookhere^
+
+subscript~here~
+
+~~cross me out~~
+
+### Tables
+
+Markdown supports multiple built in table formats. I won't review all intricacies here, but the below examples are flexible and suit most purposes for manually typed tables.
+
+A basic table
+
+left column | middle column | right column
+------------|---------------|---------------
+1           | A             | !
+2           | B             | @
+3           | C             | #
+
+notice, the visual structure of the markdown file isn't so important. This will generate the same result.
+
+left column | middle column | right column
+-------|----|-----
+1   | A       | !
+2   | B       | @
+3   | C       | #
+
+You can also align right and left using : in the ---|---|--- row..
+
+left column | middle column | right column
+:-----------|:-------------:|-------------:
+1           | A             | !
+2           | B             | @
+3           | C             | #
+
+
+Manual tables can be useful if you have a bit of static tabular information to share. But generally if you are showing data and metadata, I strongly recommend using software code to create the table, and a package like kable to display it in the markdown format. This also gives latex level flexibility in formatting and lets you generate publication ready tables.
+
+This will be covered in a follow up "advanced" lesson.
+
+### LaTeX math
+
+R Markdown natively supports most latex math notation. you can input it inline like $x = \sqrt{x^3+31}$
+
+You can also section off a block of latex code like this...
+
+$$
+(3+4)+(6+4)+(9+4)+(12+4) =
+\\
+\sum^{4}_{1}{3x+4} =
+\\
+= 46
+
+$$
+
+Notice, if you are coding this in R studio, you can see a preview as you type. If the preview is not visible, your code is probably not valid, or the project is busy running other R code.
+
+Also note that this particularly functionality is specific to R markdown. Github has a similar functionality, but it is slightly different and latex code may need to be modified to render correctly (for instance, if in a README.md file for display on github.com.)
