@@ -126,6 +126,24 @@ subscript~here~
 
 ~~cross me out~~
 
+### Quotes and terminal text
+
+A couple of ways to generate quoted and literal/terminal text:
+
+> This is a quote.
+
+> This is also a quote
+and this is the same line.
+
+
+```
+This is a literal/terminal block. Text in this section will be printed literally and not rendered.
+
+# This is not a header
+
+** this is not bold **
+```
+
 ### Tables
 
 Markdown supports multiple built in table formats. I won't review all intricacies here, but the below examples are flexible and suit most purposes for manually typed tables.
@@ -173,6 +191,7 @@ f(x) &= \sum^{4}_{1}{3x+4} \\
 \end{aligned}
 $$
 
+
 Notice, if you are coding this in R studio, you can see a preview as you type. If the preview is not visible, your code is probably not valid, or the project is busy running other R code.
 
 Also note that this particularly functionality is specific to R markdown. Github has a similar functionality, but it is slightly different and latex code may need to be modified to render correctly (for instance, if in a README.md file for display on github.com.)
@@ -197,6 +216,10 @@ x <- 4
 Finally, you can also run r code inside of your markdown text. This is useful for calling variables inline, which would let you have numerical portions of your report always be up to date as the underlying data change. 
 
 In this case, x still equals **`r x`** because we set the second code chunk to not run when we set "eval=FALSE".
+
+
+
+
 
 # Closing
 
