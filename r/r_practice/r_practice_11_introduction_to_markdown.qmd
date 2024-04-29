@@ -218,9 +218,6 @@ Finally, you can also run r code inside of your markdown text. This is useful fo
 In this case, x still equals **`r x`** because we set the second code chunk to not run when we set "eval=FALSE".
 
 
-
-
-
 # Closing
 
 Now, if you haven't already, select "knit" or "render" at the top of the page to render this document into an html file. 
