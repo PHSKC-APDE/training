@@ -3,28 +3,35 @@ title: "Intermediate R Markdown"
 author: "Ronald Buie"
 date: "`r Sys.Date()`"
 output: html_document
+  
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+# Markdown as a work environment
 
-## R Markdown
+Markdown files are simply text files that follow specific rules. What makes markdown useful is the software that follows, and adds to, these rules. We will call this your markdown environment.
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+In R studio, you essentially have 2 markdown environments. One is the one you interact with live, if you are viewing a markdown file in R Studio, this is in your live environment. The other is created when rendering or knitting a markdown file. This environment is not interactive, but is created to render or knit your markdwon file and generate the specified outputs (usually a human readable document and any files that your create in your software code). After the process is complete, this environment is deleted.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+When interacting with a markdwon document in R studio, you should write with these in mind. Markdown documents contain your instructions, both your free text and computer code, but then they also contain the outputs of those instructions. When you run pieces of your markdown document, you can explore how parts of your code interact, and the results, and practice getting the results you want. When you render or knit the markdown, you don't get to play around and go back and forth, but the results are put together into a finalized document that can be quite readable. This means that the two environments serve different purposes, and you may wish to use one or both during your project. Depending on your needs, you should write your code to suit.
 
-```{r cars}
-summary(cars)
-```
+Additionally, these environments are complete seperate (unless you go to special lengths to break this separation.) Variables, packages, and configuration options in one do not influence the other. Of course, any changes you make to files (such as running a script that saves over an existing file on your hard drive) would persist. While the two environments have slightly different defaults, the biggest difference for most users is that the interactive environment is largely controlled by your R studio configuration and all code you run in your session (for example, if you type code in teh console, or run a different script). The non-interactive, rendering, environment is controled by the YAML header and the code specified in the markdown file. If your markdown file doesn't source a script or library, it won't be available in the rendering environment, even if you prepared it in the interactive environment. This has important implications for portability and documentation.
 
-## Including Plots
 
-You can also embed plots, for example:
+Characteristic     | Interactive Environment | Rendering Environment
+-------------------|------------------|------------------------
+Purpose  | Rapid iteration as you experiment with your code and see your results, flexibly documenting your work and thought processes as-you-go so you don't forget and don't have to do it later | creating typeset documents that combine computation and documentation, for up-to-date reports and technical documentation where you don't "lose things in translation".
+Timing   | constant and immediate | at the end of your 
+Audience/User | you (the programmer) and your future self | your future self and other stakeholders
+Interactivity | completely interactive code chunks, code is visible and results display below chunks as they are run. Semi/non interactice markdown (latex is interactive and converted, but variables in markdown are not) | potentially interactive document (e.g. adjustable plots, scrollable tables, hyperlinks and a TOC). Prose and code are calculated and converted into non-runtime text (e.g. an html file, word document, or pdf file wehre latex and varibles display as resulting values, but it is flat, non executable text/code)
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+The major implications of the above are that you have a few distinct ways to use markdown that vary depending on your goals. The rest of this document outlines a few major ways to use markdown, depending on what you are trying to do.
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## a note on rendering, knitting, and compiling
+
+Rendering (quarto files) and knitting (r markdown files) are essentially the same thing. Quarto uses the different language for clarification, and as a bit more general of a term than knitting, since the modern process is broader than it used to be. Compiling would be a more general term still, but is often not preferred because compiling in computer sciences often refers to converting from one language into machine language (usually byte code), and that isn't the target language here. This is also why we don't say that R is "compiled" when we run an R script. It is "interpreted", and R (the program) is an "interpreter" not a compiler. This distinction isn't crucial here, but will help you as you learn more about computing and advance your skills in R and other languages. 
+
+For our purposes, the crucial point is that interpreted languages are ideal in approaches where you want to write pieces of code, and rapidly iterate through viewing results and playing with the code. R lets you do this. R markdown lets you do this with detailed documentation in both the interactive and rendering modes
+
+# Documentation as a practice
+
+At its core, R markdown is about documentation. Its' purpose is to fill a gap between robust documentation that improves our work, and convenient, sparse, documentation that is practical to generate. Historically, computer code contained limited, often all too brief, documentation that is difficult to read unless already familiar with the particular bit of code. In research and prototyping contexts, large portions of the work are, by definition, new. Code is created, and used,  Unlike larger pieces of code expected to have thousands, or even millions, of users, the code written in research contexts often has few users. It is less stable, with many decisions made that would not be worth documenting at large.Thus, notebooks have become highly valued in research fields, as well as areas of computation, such as machine learning and statistics, where rapid iteration and 
