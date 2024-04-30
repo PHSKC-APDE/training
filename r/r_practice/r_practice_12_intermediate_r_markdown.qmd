@@ -3,10 +3,16 @@ title: "Intermediate R Markdown"
 author: "Ronald Buie"
 date: "`r Sys.Date()`"
 output: html_document
-  
 ---
 
-# Markdown as a work environment
+# Documentation as a practice
+
+At its core, R markdown is about documentation. Its' purpose is to fill a gap between robust documentation that improves our work, is well formatted, and can support a variety of readers adn file formats, and well written and well documented code that is efficient, elegant, and possible to learn from with basic familiarity of the language, but not necessarily the specific function.
+
+Most public software and code packages are expected to have thousands, or even millions, of users, code bases that last for years or decades, and potentially generations of engineers and marketing to bring them to maturity and limit the exposure of end users to novel efforts. The code written in research and evaluation contexts often has few users, is "living" for brief timelines (often project oriented), and is often in a perpetual state of immaturity, with relatively few developers and where novel efforts are often the target deliverable. Computational notebooks were invented for research and statistical programmers to fill a gap where documentation of process, methodological concerns, and iterative exploration of results are valued components of the work, to be preserved and made available for others to confirm and participate in the quality of the final report. Notebooks serve the individual programmer by allowing them to experament with their work while documenting and viewing the results of each step. In fact this was the original idea of the notebook and the reason for its name. It is akin to a lab notebook/journal, where the researcher can document, in an iterative and stepwise fashion, their current intention, run the experament, explore the results, commment on those results, and then document their next step of experamentation and intent. Documenting analytical code this way also facilitates collaboration across a breadth of experts, few of which may be programmers, to view these same notes, the code, and results, all side by side, so they can walk through technicalities and provide advice from their own position of expertice. While the above is true of all modern notebook technologies, R Studio notebooks have expanded reporting functionality that makes them useful for generating and maintaining highly polished documentation and reports for non expert consumers. These reports can, in theory, be in any format, though html, word, pdf, and power point are integrated into a default installation of R Studio. This allows the analyst to generate up-to-date reports for end users with a largely automated pipeline. This same functionality can be used to create, and keep up to date, interactive web pages where end users can interact with the data in a WYSIWYG fashion as well.
+
+
+# Markdown as a working environment
 
 Markdown files are simply text files that follow specific rules. What makes markdown useful is the software that follows, and adds to, these rules. We will call this your markdown environment.
 
@@ -14,17 +20,17 @@ In R studio, you essentially have 2 markdown environments. One is the one you in
 
 When interacting with a markdwon document in R studio, you should write with these in mind. Markdown documents contain your instructions, both your free text and computer code, but then they also contain the outputs of those instructions. When you run pieces of your markdown document, you can explore how parts of your code interact, and the results, and practice getting the results you want. When you render or knit the markdown, you don't get to play around and go back and forth, but the results are put together into a finalized document that can be quite readable. This means that the two environments serve different purposes, and you may wish to use one or both during your project. Depending on your needs, you should write your code to suit.
 
-Additionally, these environments are complete seperate (unless you go to special lengths to break this separation.) Variables, packages, and configuration options in one do not influence the other. Of course, any changes you make to files (such as running a script that saves over an existing file on your hard drive) would persist. While the two environments have slightly different defaults, the biggest difference for most users is that the interactive environment is largely controlled by your R studio configuration and all code you run in your session (for example, if you type code in teh console, or run a different script). The non-interactive, rendering, environment is controled by the YAML header and the code specified in the markdown file. If your markdown file doesn't source a script or library, it won't be available in the rendering environment, even if you prepared it in the interactive environment. This has important implications for portability and documentation.
+Additionally, these environments are complete separate (unless you go to special lengths to break this separation.) Variables, packages, and configuration options in one do not influence the other. Of course, any changes you make to files (such as running a script that saves over an existing file on your hard drive) would persist. While the two environments have slightly different defaults, the biggest difference for most users is that the interactive environment is largely controlled by your R studio configuration and all code you run in your session (for example, if you type code in teh console, or run a different script). The non-interactive, rendering, environment is controled by the YAML header and the code specified in the markdown file. If your markdown file doesn't source a script or library, it won't be available in the rendering environment, even if you prepared it in the interactive environment. This has important implications for portability and documentation.
 
 
 Characteristic     | Interactive Environment | Rendering Environment
 -------------------|------------------|------------------------
 Purpose  | Rapid iteration as you experiment with your code and see your results, flexibly documenting your work and thought processes as-you-go so you don't forget and don't have to do it later | creating typeset documents that combine computation and documentation, for up-to-date reports and technical documentation where you don't "lose things in translation".
-Timing   | constant and immediate | at the end of your 
-Audience/User | you (the programmer) and your future self | your future self and other stakeholders
-Interactivity | completely interactive code chunks, code is visible and results display below chunks as they are run. Semi/non interactice markdown (latex is interactive and converted, but variables in markdown are not) | potentially interactive document (e.g. adjustable plots, scrollable tables, hyperlinks and a TOC). Prose and code are calculated and converted into non-runtime text (e.g. an html file, word document, or pdf file wehre latex and varibles display as resulting values, but it is flat, non executable text/code)
+Timing   | constant input with immediate results (in R Studio) | batch input with results available post-processing
+Audience/Use | you and your fellow programmers, live technical demonstration | your future self and other stakeholders, self contained report/documentation sharing
+Interactivity | completely interactive code chunks, code is visible and results display below chunks as they are run. Semi/non interactive markdown (latex is interactive and converted, but variables in markdown are not) | potentially interactive document (e.g. adjustable plots, scrollable tables, hyperlinks and a TOC). Prose and code are calculated and converted into non-runtime text (e.g. an html file, word document, or pdf file where latex and variables display as resulting values, but it is flat, non executable text/code)
 
-The major implications of the above are that you have a few distinct ways to use markdown that vary depending on your goals. The rest of this document outlines a few major ways to use markdown, depending on what you are trying to do.
+The major implications of the above are that there are different ways to use markdown depending on your goal. The rest of this document outlines a few of these.
 
 ## a note on rendering, knitting, and compiling
 
@@ -32,6 +38,8 @@ Rendering (quarto files) and knitting (r markdown files) are essentially the sam
 
 For our purposes, the crucial point is that interpreted languages are ideal in approaches where you want to write pieces of code, and rapidly iterate through viewing results and playing with the code. R lets you do this. R markdown lets you do this with detailed documentation in both the interactive and rendering modes
 
-# Documentation as a practice
+# Documenting for yourself
 
-At its core, R markdown is about documentation. Its' purpose is to fill a gap between robust documentation that improves our work, and convenient, sparse, documentation that is practical to generate. Historically, computer code contained limited, often all too brief, documentation that is difficult to read unless already familiar with the particular bit of code. In research and prototyping contexts, large portions of the work are, by definition, new. Code is created, and used,  Unlike larger pieces of code expected to have thousands, or even millions, of users, the code written in research contexts often has few users. It is less stable, with many decisions made that would not be worth documenting at large.Thus, notebooks have become highly valued in research fields, as well as areas of computation, such as machine learning and statistics, where rapid iteration and 
+# Documenting for your division
+
+# Documenting for your customers
