@@ -32,13 +32,44 @@ Interactivity | completely interactive code chunks, code is visible and results 
 
 The major implications of the above are that there are different ways to use markdown depending on your goal. The rest of this document outlines a few of these.
 
-## a note on rendering, knitting, and compiling
+## a note on rendering and knitting
 
-Rendering (quarto files) and knitting (r markdown files) are essentially the same thing. Quarto uses the different language for clarification, and as a bit more general of a term than knitting, since the modern process is broader than it used to be. Compiling would be a more general term still, but is often not preferred because compiling in computer sciences often refers to converting from one language into machine language (usually byte code), and that isn't the target language here. This is also why we don't say that R is "compiled" when we run an R script. It is "interpreted", and R (the program) is an "interpreter" not a compiler. This distinction isn't crucial here, but will help you as you learn more about computing and advance your skills in R and other languages. 
-
-For our purposes, the crucial point is that interpreted languages are ideal in approaches where you want to write pieces of code, and rapidly iterate through viewing results and playing with the code. R lets you do this. R markdown lets you do this with detailed documentation in both the interactive and rendering modes
+Rendering (quarto files) and knitting (r markdown files) are essentially the same thing. Quarto uses the different language for clarification, and as a bit more general of a term than knitting, since the modern process is broader than it used to be. 
 
 # Documenting for yourself
+Use of R markdown for generating documentation for yourself can be very straightforward and is introduced here as a backbone of the other use cases. This use case assumes that your primary goal is to generate robust documentation about a project that is alongside, and contemporary to, the programming code for the same project. Presumably, there are few, if any, formatting requirements, but the code, and perhaps some of the prose, may be part of project planning, execution, or a deliverable.
+
+The same techniques shown in the beginner markdown guide, alongside some careful use of code chunks, will suffice for most use cases. For more complex projects, one may wish to structure the content in the form of an analysis plan. This is the approach outlined here.
+
+## Analysis plan as a living project document
+
+Analysis plans are documents that outline the work to be undertaken by the analyst. The are, ideally, drafted early in the conception of a project, as a way to make sure all stakeholders are "on the same page". But they also should be kept up to date throughout the project. An up-to-date analysis plan serves three purposes: 
+
+1: It serves as a single location for direct contributors (e.g. the analyst) to document critical information about the purpose, methods, and expected outputs of their work.
+2: It serves as a store of langauge and key informaiton crucial to facilitate management of the work by senior/management and by other consumers of the analyst work
+3: It serves as a briefing of the project that may be referenced by out future selves to quickly orient us to what was done and why
+
+These are potentially valuable goals, but achieving them requires keeping the analysis plan up-to-date throughout the project. Here we show how markdown can greatly reduce the burden of this, by marrying documentation and work into a single document.
+
+## Analysis plan as structure in quantitative project work
+
+Most analysis plans follow a structure similar to the first parts of peer reviewed literature (More complex variants may add more sections, or sub sections as needed):
+
+1: Background/Introduction
+2: Methods/Plan
+3: Deliverables/Tables/Results
+
+Because an analysis plan starts as a planning document and becomes internal documentation of a project, the sections serve different purposes than would be expected in publications:
+
+1: Bakground/Introduction
+
+Documents, through summary, references, and links, information critical for teh analyst and their collaborators to know about in order to understand and pursue the customer's needs. This is often information provided in an initial briefing with the customer and may also include slide decks, web pages, email threads, papers/reports, and prior work. 
+
+2: Methods/Plan
+
+Documents the analyst' intentions and design decisions. This should be in plain, but precise langauge (most often the analyst is writing to themself) and sturctured to be easy to browse. Particularly helpful are where th
+
+
 
 # Documenting for your division
 
