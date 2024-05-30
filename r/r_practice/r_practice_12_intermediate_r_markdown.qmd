@@ -39,19 +39,9 @@ Rendering (quarto files) and knitting (r markdown files) are essentially the sam
 # Documenting for yourself
 Use of R markdown for generating documentation for yourself can be very straightforward and is introduced here as a backbone of the other use cases. This use case assumes that your primary goal is to generate robust documentation about a project that is alongside, and contemporary to, the programming code for the same project. Presumably, there are few, if any, formatting requirements, but the code, and perhaps some of the prose, may be part of project planning, execution, or a deliverable.
 
-The same techniques shown in the beginner markdown guide, alongside some careful use of code chunks, will suffice for most use cases. For more complex projects, one may wish to structure the content in the form of an analysis plan. This is the approach outlined here.
-
 ## Analysis plan as a living project document
 
-Analysis plans are documents that outline the work to be undertaken by the analyst. The are, ideally, drafted early in the conception of a project, as a way to make sure all stakeholders are "on the same page". But they also should be kept up to date throughout the project. An up-to-date analysis plan serves three purposes: 
-
-1: It serves as a single location for direct contributors (e.g. the analyst) to document critical information about the purpose, methods, and expected outputs of their work.
-2: It serves as a store of langauge and key informaiton crucial to facilitate management of the work by senior/management and by other consumers of the analyst work
-3: It serves as a briefing of the project that may be referenced by out future selves to quickly orient us to what was done and why
-
-These are potentially valuable goals, but achieving them requires keeping the analysis plan up-to-date throughout the project. Here we show how markdown can greatly reduce the burden of this, by marrying documentation and work into a single document.
-
-## Analysis plan as structure in quantitative project work
+Analysis plans are documents that outline the work to be undertaken by the analyst. The are, ideally, drafted early in the conception of a project and used to make sure all stakeholders are "on the same page" and kept up-to-date for continued reference by the analyst and others. An analysis plan can be quite short or long, as needed for the project. Below, we demonstrate how 
 
 Most analysis plans follow a structure similar to the first parts of peer reviewed literature (More complex variants may add more sections, or sub sections as needed):
 
@@ -59,17 +49,48 @@ Most analysis plans follow a structure similar to the first parts of peer review
 2: Methods/Plan
 3: Deliverables/Tables/Results
 
-Because an analysis plan starts as a planning document and becomes internal documentation of a project, the sections serve different purposes than would be expected in publications:
+Because an analysis plan starts as a planning document and becomes internal documentation of a project, the sections serve different purposes than would be expected in a publication. Below we demonstrate this process. Note that level 3 headers are used here, but in a normal document these would be level 1 headers.
 
-1: Bakground/Introduction
+An up-to-date analysis plan serves three purposes: 
+
+1: It serves as a single location for direct contributors (e.g. the analyst) to document critical information about the purpose, methods, and outputs of their work.
+2: It serves as a store of language and key information crucial to facilitate management of the work by senior/management and by other consumers of the analyst work.
+3: It serves as both a briefing on the project and store of the analysts' technical work on the project that may be referenced by our future selves to quickly orient us to what was done and why.
+
+The below approach demonstrates how the analyst can achieve these goals while also executing their code all within a single markdown or quarto document.
+
+## Walkthrough of analysis plan as structure in quantitative project work
+
+
+
+### Bakground
 
 Documents, through summary, references, and links, information critical for teh analyst and their collaborators to know about in order to understand and pursue the customer's needs. This is often information provided in an initial briefing with the customer and may also include slide decks, web pages, email threads, papers/reports, and prior work. 
 
-2: Methods/Plan
+For example, you can find this and additional r trainig in APDE's [training sharepoint site](a sharepoint link).
 
-Documents the analyst' intentions and design decisions. This should be in plain, but precise langauge (most often the analyst is writing to themself) and sturctured to be easy to browse. Particularly helpful are where th
+### Methods/Plan
+
+Documents the analyst's intentions and design decisions. This should be in plain, but precise langauge (most often the analyst is writing to themself) and structured to be easy to browse. Unlike the methods section for an article, this is written for direct contributors of the project. It should support your technical work and shared decision making with other stakeholders.
+
+Depending on the project, the following sub sections may be helpful for documenting this:
+
+#### Population
 
 
+#### Data
+
+
+
+Our data are a 
+
+B: Software and Systems
+
+C: Analysis to be conducted
+
+3: Results/Analysis
+
+Documents and, when ready, presents the deliverables to be sent to the customer. This section is normally very straightforward, listing each chart or table with any accompanying analysis notes. 
 
 # Documenting for your division
 
