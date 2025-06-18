@@ -11,8 +11,8 @@
 ## Package Dependencies and Configuration
 
 * If you are using another package that has not yet been used in the package, use `usethis::use_package("pkg", type = "Imports|Suggests")` to update the DESCRIPTION file (or update it manually if you like).
-* Imports = packages needed for APDE's package to work.
-* Suggests = optional packages used for tests and building vignettes.
+  * Imports = packages needed for APDE's package to work.
+  * Suggests = optional packages used for tests and building vignettes.
 * If your package uses other APDE packages, include them in your DESCRIPTION with something like:
   ```
   Remotes:
@@ -43,7 +43,7 @@
   #' @export
   #' @method functionName className
   ```
-* Note, do not be like Danny who likes to use complicated old school syntax like `\enumerate{\item ...}` and `\code{...}`. roxygen2 plays nicely with Markdown, just ensure your DESCRIPTION file has `Roxygen: list(markdown = TRUE)` and you can make simple markdown lists.
+* Note, do not be like Danny who likes to use complicated old school syntax like `\enumerate{\item ...}` and `\code{...}`. roxygen2 plays nicely with Markdown, just ensure your DESCRIPTION file has `Roxygen: list(markdown = TRUE)` and you can use standard markdown syntax.
 * Run `devtools::document()` and proof read your helpfile a bunch of times.
 * NEVER manually edit the NAMESPACE file. Use roxygen2 coding and rebuild with `devtools::document()`.
 
@@ -68,7 +68,7 @@
 * Manually add the following deprecation code inside the start of your function:
   ```r
   lifecycle::deprecate_warn(
-     when = "version", 
+     when = "version # when deprecation occurred", 
      what = "old_function()", 
      with = "new_function()",
      details = 'A specific note you want to add'
@@ -84,13 +84,17 @@
   * The `data-raw/` directory contains code that creates or processes raw data into the final datasets that are available within your package. Use `usethis::use_data_raw("dataset_name")` to set the `data-raw/` directory and to create a `dataset_name.R` file for the code to prepare your data.
   * The `data/` directory contains the actual `.rda` files that users will access. These are created by the code in `data-raw/` when they run `usethis::use_data(dataset_name)`.
   * The `R/data.R` file contains all your dataset documentation using roxygen2 syntax. Each dataset gets its own documentation block with detailed `@format` descriptions, `@source` information, `@usage`, and `@name`. Additional tags like `@note`, `@reference`, `@details`, `@examples`, `@keywords`, etc. are helpful.
-* Dataset documentation should be thorough - describe every column, include data sources, and note any special characteristics or limitations.
-* Always end dataset documentation with the dataset name in quotes.
+    * Dataset documentation should be thorough - describe every column, include data sources, and note any special characteristics or limitations.
+    * Always end dataset documentation with the dataset name in quotes on a line by itself, e.g., `"dataset_name"`
 * Consider using `usethis::use_data(..., overwrite = TRUE)` when updating existing datasets.
+
+## Additional Directories
+* Use the `inst/` directory for files that need to be installed with your package but aren't R data objects. E.g., configuration files, templates, or reference documents that your functions might read.
+* Use `inst/extdata/` for raw data files that are processed by scripts in `data-raw/` or for example external data files that demonstrate how your package works. These files should be small.
 
 ## Package Initialization and Setup
 
-* Use `R/zzz.R` (rather than `R/onAttach`, `R/onload.R`, `R\options_and_onload.R`, etc.) for package initialization code.
+* Use `R/zzz.R` (rather than `R/onAttach`, `R/onload.R`, `R/options_and_onload.R`, etc.) for package initialization code.
 * This replaces the `.onLoad()` function that runs when the package namespace is loaded.
 * It also replaces the `.onAttach()` function that runs when the package is attached via `library()`.
 * Common uses include:
@@ -107,12 +111,13 @@
 * Consider tests for complex or important internal functions too.
 * Try to mirror the structure of `R/` in `tests/testthat/`. E.g., if you have `R/BigFunction1.R` and `R/myutilities.R`, then aim to have `tests/testthat/test-BigFunction1.R` and `tests/testthat/test-myutilities.R`.
 * Try hard to break your code with corner cases.
-* Run `devtools::test()` and update your function(s) or tests as needed.
+* Run `devtools::test()` and update your function(s) and/or tests as needed.
 
 ## Creating Vignettes (optional, but helpful)
 
 * You could use `usethis::use_vignette("vignette-name")`, but that creates an `.Rmd` file whereas the world is moving toward `.Qmd` files. Instead, do the following:
   * Create `quarto_docs/` in your package's root directory.
+  * Add `^quarto_docs$` to .Rbuildignore
   * Add knitr and quarto to your DESCRIPTION under Suggests using `usethis::use_package()` or editing the DESCRIPTION file manually.
   * Create a `.Qmd` file in `quarto_docs` and give it a header like the following which will render git flavored markdown (which you will need to post on a GitHub wiki):
     ```yaml
