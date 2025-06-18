@@ -6,7 +6,7 @@
 * If you created a new package, update the DESCRIPTION file as needed, specifically the Title, Version, Authors@R, Description.
 * Note that for Authors@R one of the roles must be the maintainer ('cre'). I would just leave that part alone and update your name and email and delete the part about ORCID.
 * If you are developing an existing package, clone it from GitHub and be sure to create and use a feature branch.
-* Whether it is a new or existing pacakge, set the package license to [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.html) by entering `usethis::use_apache_license(version = 2)`. This is the license used by CDC.
+* Whether it is a new or existing package, set the package license to [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.html) by entering `usethis::use_apache_license(version = 2)`. This is the license used by CDC.
 
 ## Package Dependencies and Configuration
 
