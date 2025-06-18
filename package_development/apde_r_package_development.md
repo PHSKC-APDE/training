@@ -29,8 +29,9 @@
 ## Creating Functions
 
 * When creating functions, try to maintain consistent stylistic / thematic elements throughout the package. For example, in rads, the dataset provided to most (if not all) functions is called `ph.data` and the stratification parameter in many functions is called `group_by`.
-* Once your function is working, try to break it. Imagine all the incorrect parameters that it might receive and create validations with informative user feedback describing the problems. Every parameter given to the function should have some validation.
+* Validate inputs and provide informative user feedback describing the problems. Every parameter given to the function should have some validation.
 * As much as possible, use the `packageName::function()` syntax in your functions so your future self (or a new maintainer) can easily know which package the function is using. This should (hopefully!) reduce namespace conflicts and confusion since some packages have functions with the same name, for example, `data.table::between()` and `dplyr::between()`.
+* Once your function is working, write unit tests (see below). You can and should turn scratch code you use to develop your function into tests.
 
 ## Function Documentation
 
