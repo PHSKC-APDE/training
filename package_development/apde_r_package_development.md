@@ -5,7 +5,7 @@
 * If you are starting from scratch, consider using `usethis::create_package()` to setup a package on your laptop.
 * If you created a new package, update the DESCRIPTION file as needed, specifically the Title, Version, Authors@R, Description.
 * Note that for Authors@R one of the roles must be the maintainer ('cre'). I would just leave that part alone and update your name and email and delete the part about ORCID.
-* Set the package license using `usethis::use_***_license()`, where *** is 'mit', 'gpl', etc. I know nothing about licenses, so if anyone has strong feelings that we should always use a specific license, speak up. Otherwise, pick whichever free / open license you like.
+* Set the package license to [Apache 2](https://www.apache.org/licenses/LICENSE-2.0.html) by entering `usethis::use_apache_license(version = 2)`. This is the license used by CDC.
 * If you are developing an existing package, clone it from GitHub and be sure to create and use a feature branch.
 
 ## Package Dependencies and Configuration
