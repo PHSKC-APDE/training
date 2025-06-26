@@ -7,6 +7,7 @@
 -   Note that for [Authors\@R](mailto:Authors@R){.email} one of the roles must be the maintainer ('cre'). I would just leave that part alone and update your name and email and delete the part about ORCID.
 -   If you are developing an existing package, clone it from GitHub and be sure to create and use a feature branch.
 -   Whether it is a new or existing package, set the package license to [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.html) by entering `usethis::use_apache_license(version = 2)`. This is the license used by CDC.
+-   For additional reading on building R packages, [R Packages (2e)](https://r-pkgs.org/ "R Packages (2e) Learn how to create a package, the fundamental unit of shareable, reusable, and reproducible R code.") by Hadley Wickham and Jennifer Bryan is an authoritative and free reference.
 
 ## Package Dependencies and Configuration
 
@@ -34,7 +35,7 @@
 -   When creating functions, try to maintain consistent stylistic / thematic elements throughout the package. For example, in rads, the dataset provided to most (if not all) functions is called `ph.data` and the stratification parameter in many functions is called `group_by`.
 -   Validate inputs and provide informative user feedback describing the problems. Every parameter given to the function should have some validation.
 -   As much as possible, use the `packageName::function()` syntax in your functions so your future self (or a new maintainer) can easily know which package the function is using. This should (hopefully!) reduce namespace conflicts and confusion since some packages have functions with the same name, for example, `data.table::between()` and `dplyr::between()`.
--   Once your function is working, write unit tests (see below). You can and should turn scratch code you use to develop your function into tests.
+-   As you develop your functions, write unit tests (see below). You can and should turn scratch code you use to develop your function into tests.
 
 ## Function Documentation
 
