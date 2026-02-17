@@ -3,6 +3,10 @@ title: "R Practice 13: Data Modeler"
 author: "Ronald W. Buie"
 format: pdf
 ---
+
+[this document](https://github.com/PHSKC-APDE/training/blob/main/r/r_practice/r_practice_13_data_modeler.qmd)
+
+rads::data_moderle creates a simulated dataset structure where the underlying data are uncorrelated across columns. Once uncorrelated the data is no longer informative for any individual row. However, the data within a particular column will be representative of the underlying distributions when the data has been classified as categorical by data_modeler. For non-categorical data, text fields the text field will be roughly the same length as what is in the underlying data, although the actual text would not be reflective of the data. Non-categorical numbers will be from a uniform distribution of numbers with the same min-max and precision as the source data.                                                                    
                                                                                                                                                                           
 *Render this document in r studio to see a pdf (or other) format*
 
@@ -55,8 +59,7 @@ DT.real.data <- data.table(
    DT.real.data[, indicator1 := ifelse(chi_race_7 == "White", "never",
                          ifelse(chi_race_7 == "Asian", "sometimes",
                                 "always"))]
-   
-DT.real.data <- apde.data::hys()
+
 ```
 
 ```{r create a data.table of synthetic data}
@@ -68,13 +71,9 @@ DT.synthetic.data <- rads::data_modeler(ph.data = DT.real.data, #our "real" data
                                 number_of_observations =  100, #number of observations to create in the synthetic data
                                 comments = TRUE, #whether or not to include comments in code (only matters for return_code == TRUE or print_code == TRUE)
                                 return_code = FALSE, #return a list object of strings for creating the synthetic data instead of the data itself. leave FALSE to receive synthetic data
-                              print_code = FALSE) #print the generation code to terminal. useful for both review and if you wish to copy into other contexts, such as a shareable script or in a chat with a LLM/AI
+                              print_code = T) #print the generation code to terminal. useful for both review and if you wish to copy into other contexts, such as a shareable script or in a chat with a LLM/AI
 
-DT.synthetic.data <- rads::data_modeler(ph.data = DT.real.data, #our "real" data
-                                number_of_observations =  100, #number of observations to create in the synthetic data
-                                comments = TRUE, #whether or not to include comments in code (only matters for return_code == TRUE or print_code == TRUE)
-                                return_code = FALSE, #return a list object of strings for creating the synthetic data instead of the data itself. leave FALSE to receive synthetic data
-                              print_code = FALSE) 
+
 ```
 
 You can observe that the data structures are the same for both data frames:
@@ -197,8 +196,24 @@ Performance of the data typing heuristics can be adjusted by two parameters, "ca
 
 categorical_threshold : Threshold for the number of unique values in a variable at or below which data_modeler() will treat the value as cateogircal, default 61.
 
-proportional_threshold	: Threshold for the proportion of observations that must be unique, below which data modeler() will treat the value as categorical, default 0.75
+proportional_threshold : Threshold for the proportion of observations that must be unique, below which data modeler() will treat the value as categorical, default 0.75
 
 In general, both definitions must be met for a variable to be classified as categorical or not.
 
-*mot all data types use these, and they are still a work-in-progress*
+*not all data types use these, and they are still a work-in-progress*
+
+# In Summary:
+
+- Proportion of response for each indicator categorical is spread across all data. No relationship exists between indicator and outcome at observation level.  For categorical variables, column would be representative of underlying distribution 
+
+- For noncategorical columns modeler would use min/max values; would not have ability to show peaks of distribution. 
+
+- Variable type detection depends on having sufficient observations in the original data (particularly for non-categoricals). For most use cases, 1000 or more observations should work. (if something shouldn’t be categorical, but isn’t variable enough, adding more observations or reducing the detection threshold can have it properly be detected as non categorical.) 
+
+   - More exactly: having 2 orders of magnitude more observations than levels in the largest category should work (so if the largest category is 9 or fewer levels, having 100 observations in the input data should work, but if 10-99 levels (such as our HRAs), having 1000, and if 100-999 (e.g. a large number of zip codes) 10000 observations would be better.  
+
+- Pare down variables list for data modeler, not recommended to use all available variables in a given data set 
+
+- Set “seed” before running code to generate same output for two users running data modeler 
+
+- When running code, select “print code”= “true” to review parameters that modeler is defining/using for each variable in original data set to create synthetic data set.  User could manually add additional anonymization as needed  
