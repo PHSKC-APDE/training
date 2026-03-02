@@ -1,5 +1,5 @@
 # When you update R or have a fresh installation, you will have to reinstall packages
-# Running this script shoudl install most of the packages commonly used by APDE
+# Running this script should install most of the packages commonly used by APDE
 # Be sure to run it to the very end so that you install the APDE custom package
 
 # install standard packages used by APDE
