@@ -67,12 +67,18 @@ install.packages(c('broom',
                    'zoo'))
 
 
-# Install PHSKC packages
-remotes::install_github("PHSKC-APDE/apde.data", auth_token = NULL)
+# Install Public PHSKC packages
 remotes::install_github("PHSKC-APDE/rads", auth_token = NULL)
 remotes::install_github("PHSKC-APDE/claims_data")
 remotes::install_github('https://github.com/PHSKC-APDE/spatagg')
 remotes::install_github('https://github.com/PHSKC-APDE/kcparcelpop/')
+
+# Install Private PHSKC packages
+message('\U0001f6a8\U1F6D1\U0001f6a8!!!\n',
+        'To install private packages, you will need to ensure your GitHub credentials are up to date.\n',
+        'The best way to do this is to follow the instructions in the apde.data README:\n',
+        'https://github.com/PHSKC-APDE/apde.data/blob/main/README.md')
+remotes::install_github("PHSKC-APDE/apde.data", auth_token = NULL)
 
 
 # The end!
