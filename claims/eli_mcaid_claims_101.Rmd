@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Welcome
 
-This script serves as a companion to the Medicaid claims 101 training slide deck developed by PHSKC-APDE for PHSKC and DCHS data analysts. The [training slide deck](https://kc1.sharepoint.com/:p:/r/teams/DPH-KCCross-SectorData/Shared%20Documents/Training/PHSKC_Medicaid%20claims%20data%20101.pptx?d=w1eed7465cdcc49838dc0afd54d62a97c&csf=1&web=1&e=3ob1Yr) can be accessed by members of the [DPH-KCCross-SectorData](https://kc1.sharepoint.com/teams/DPH-KCCross-SectorData) SharePoint site.
+This script serves as a companion to the [Medicaid claims 101 training slide deck](https://kc1.sharepoint.com/:p:/r/teams/DPH-APDE-Healthcare-Data/Shared%20Documents/Guidance/PHSKC_Medicaid%20claims%20data%20101.pptx?d=wd909065239f24b57b4c48e9528793a31&csf=1&web=1&e=bXVM9g) developed by PHSKC-APDE for PHSKC and DCHS data analysts.
 
 This script is divided into sections corresponding to topics featured in the training slide deck.
 
@@ -33,13 +33,9 @@ pacman::p_load(tidyverse, odbc, rads, openxlsx2, claims, rlang, glue, keyring)
 #Connect to HHSAW using ODBC driver
 db_hhsaw <- DBI::dbConnect(odbc::odbc(),
                            driver = "ODBC Driver 17 for SQL Server",
-                           server = "tcp:kcitazrhpasqlprp16.azds.kingcounty.gov,1433",
+                           server = "kcitazrhpasqlprp16.database.windows.net",
                            database = "hhs_analytics_workspace",
-                           uid = keyring::key_list("hhsaw")[["username"]],
-                           pwd = keyring::key_get("hhsaw", keyring::key_list("hhsaw")[["username"]]),
-                           Encrypt = "yes",
-                           TrustServerCertificate = "yes",
-                           Authentication = "ActiveDirectoryPassword")
+                           Authentication = "ActiveDirectoryIntegrated")
 ```
 
 ## Counting distinct individuals in claims data
@@ -139,7 +135,7 @@ result1
 **Selecting people with coverage during a measurement window.**  
 Now let's start to work with time-varying concepts, beginning with coverage start and end dates. Note that people enter and exit the Medicaid data for three reasons: 1) people gain or lose Medicaid coverage (change in eligibility), 2) people move into or out of King County, or 3) people are born or die. With the exception of people entering due to birth, we cannot differentiate between any of the other reasons.
 
-For this first example, let's find all the people with 1 or more day of Medicaid coverage in 2023. The `[claims].[final_mcaid_elig_timevar]` table contains from and to dates for a host of time-varying concepts - we need to create new from and to dates within our measurement window (2023-01-01 through 2023-12-31) in order to accurately count coverage days.
+For this first example, let's find all the people with 1 or more day of Medicaid coverage in 2023. The `[claims].[final_mcaid_elig_month]` table contains monthly records mapped to a range of time-varying concepts.
 
 ```{r overall_mcaid coverage cohort}
 
@@ -147,32 +143,10 @@ reference_from_date <- "2023-01-01"
 reference_to_date <- "2023-12-31"
 
 sql_query_1 <- glue::glue_sql(
-  "with cov_2023 as (
-    select id_mcaid, from_date, to_date, geo_kc, cov_time_day,
-    
-    case
-    	--coverage period fully contains date range
-    	when from_date <= {reference_from_date} and to_date >= {reference_to_date}
-    	  then datediff(day, {reference_from_date}, {reference_to_date}) + 1
-    	--coverage period begins before and ends within date range
-    	when from_date <= {reference_from_date} and to_date < {reference_to_date}and to_date >= {reference_from_date}
-    	  then datediff(day, {reference_from_date}, to_date) + 1
-    	--coverage period begins within and ends after date range
-    	when from_date > {reference_from_date}  and to_date >= {reference_to_date} and from_date <= {reference_to_date}
-    	  then datediff(day, from_date, {reference_to_date}) + 1
-    	--coverage period begins and ends within date range
-    	when from_date > {reference_from_date} and to_date < {reference_to_date}
-    	  then datediff(day, from_date, to_date) + 1
-    	else 0
-    end as custom_cov_time_day
-
-    from claims.final_mcaid_elig_timevar
-    where from_date <= {reference_to_date} and to_date >= {reference_from_date}
-    and geo_kc = 1
-  )
-  select count(distinct id_mcaid) as id_dcount
-  from cov_2023
-  where custom_cov_time_day >= 1;",
+  "select count(distinct id_mcaid) as id_dcount
+  from claims.final_mcaid_elig_month
+  where from_date between {reference_from_date} and {reference_to_date}
+    and geo_kc = 1;",
   .con = db_hhsaw)
 
 result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
@@ -191,31 +165,15 @@ reference_days <- reference_period %/% days(1) + 1
 
 sql_query_1 <- glue::glue_sql(
   "with cov_2023 as (
-    select id_mcaid, from_date, to_date, geo_kc, cov_time_day,
-    
-    case
-    	--coverage period fully contains date range
-    	when from_date <= {reference_from_date} and to_date >= {reference_to_date}
-    	  then datediff(day, {reference_from_date}, {reference_to_date}) + 1
-    	--coverage period begins before and ends within date range
-    	when from_date <= {reference_from_date} and to_date < {reference_to_date}and to_date >= {reference_from_date}
-    	  then datediff(day, {reference_from_date}, to_date) + 1
-    	--coverage period begins within and ends after date range
-    	when from_date > {reference_from_date}  and to_date >= {reference_to_date} and from_date <= {reference_to_date}
-    	  then datediff(day, from_date, {reference_to_date}) + 1
-    	--coverage period begins and ends within date range
-    	when from_date > {reference_from_date} and to_date < {reference_to_date}
-    	  then datediff(day, from_date, to_date) + 1
-    	else 0
-    end as custom_cov_time_day
-
-    from claims.final_mcaid_elig_timevar
-    where from_date <= {reference_to_date} and to_date >= {reference_from_date}
-    and geo_kc = 1
+    select id_mcaid, sum(cov_time_day) as cov_time_day
+    from claims.final_mcaid_elig_month
+    where from_date between {reference_from_date} and {reference_to_date}
+      and geo_kc = 1
+    group by id_mcaid
   )
   select count(distinct id_mcaid) as id_dcount
   from cov_2023
-  where custom_cov_time_day*1.0/{reference_days}*100.0 >= 50.0;",
+  where cov_time_day*1.0/{reference_days}*100.0 >= 50.0;",
   .con = db_hhsaw)
 
 result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
@@ -234,40 +192,18 @@ reference_from_date <- "2023-01-01"
 reference_to_date <- "2023-12-31"
 
 sql_query_1 <- glue::glue_sql(
-  "with cov_2023 as (
-    select distinct id_mcaid, geo_zip,
-    
-    case
-    	--coverage period fully contains date range
-    	when from_date <= {reference_from_date} and to_date >= {reference_to_date}
-    	  then datediff(day, {reference_from_date}, {reference_to_date}) + 1
-    	--coverage period begins before and ends within date range
-    	when from_date <= {reference_from_date} and to_date < {reference_to_date}and to_date >= {reference_from_date}
-    	  then datediff(day, {reference_from_date}, to_date) + 1
-    	--coverage period begins within and ends after date range
-    	when from_date > {reference_from_date}  and to_date >= {reference_to_date} and from_date <= {reference_to_date}
-    	  then datediff(day, from_date, {reference_to_date}) + 1
-    	--coverage period begins and ends within date range
-    	when from_date > {reference_from_date} and to_date < {reference_to_date}
-    	  then datediff(day, from_date, to_date) + 1
-    	else 0
-    end as custom_cov_time_day
-
-    from claims.final_mcaid_elig_timevar
-    where from_date <= {reference_to_date} and to_date >= {reference_from_date}
-    and geo_kc = 1
-  ),
-  
-  zip_code_cov_time as (
-    select id_mcaid, geo_zip, sum(custom_cov_time_day) as custom_cov_time_day
-    from cov_2023
+  "with zip_code_cov_time as (
+    select id_mcaid, geo_zip, sum(cov_time_day) as cov_time_day
+    from claims.final_mcaid_elig_month
+    where from_date between {reference_from_date} and {reference_to_date}
+      and geo_kc = 1
     group by id_mcaid, geo_zip
   ),
   
   zip_code_ranks as (
-    select id_mcaid, geo_zip, custom_cov_time_day,
+    select id_mcaid, geo_zip, cov_time_day,
     rank() over(partition by id_mcaid
-      order by case when geo_zip is null then 1 else 0 end, custom_cov_time_day desc, geo_zip)
+      order by case when geo_zip is null then 1 else 0 end, cov_time_day desc, geo_zip)
 	    as geo_zip_rank
     from zip_code_cov_time
   )
@@ -300,18 +236,18 @@ The following code counts the total number of *distinct* emergency department (E
 sql_query_1 <- glue::glue_sql(
   "select a.service_year, a.ed_pophealth_dcount, b.ed_perform_dcount
   from (
-    select year(last_service_date) as service_year, count(distinct ed_pophealth_id) as ed_pophealth_dcount
+    select year(first_service_date) as service_year, count(distinct ed_pophealth_id) as ed_pophealth_dcount
     from claims.final_mcaid_claim_header
-    where year(last_service_date) between 2018 and 2022
+    where year(first_service_date) between 2018 and 2022
       and ed_pophealth_id is not null
-    group by year(last_service_date)
+    group by year(first_service_date)
   ) as a
   left join (
-    select year(last_service_date) as service_year, count(distinct ed_perform_id) as ed_perform_dcount
+    select year(first_service_date) as service_year, count(distinct ed_perform_id) as ed_perform_dcount
     from claims.final_mcaid_claim_header
-    where year(last_service_date) between 2018 and 2022
+    where year(first_service_date) between 2018 and 2022
       and ed_perform_id is not null
-    group by year(last_service_date)
+    group by year(first_service_date)
   ) as b
   on a.service_year = b.service_year;",
   .con = db_hhsaw)
@@ -327,11 +263,11 @@ The following code counts the total number of *distinct* acute inpatient stays b
 ```{r inpatient}
 
 sql_query_1 <- glue::glue_sql(
-  "select year(last_service_date) as service_year, count(distinct inpatient_id) as inpatient_dcount
+  "select year(first_service_date) as service_year, count(distinct inpatient_id) as inpatient_dcount
   from claims.final_mcaid_claim_header
-  where year(last_service_date) between 2018 and 2022
+  where year(first_service_date) between 2018 and 2022
     and inpatient_id is not null
-  group by year(last_service_date);",
+  group by year(first_service_date);",
   .con = db_hhsaw)
 
 result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
@@ -345,11 +281,11 @@ The following code counts the total number of *distinct* primary care visits by 
 ```{r primary_care_visit}
 
 sql_query_1 <- glue::glue_sql(
-  "select year(last_service_date) as service_year, count(distinct pc_visit_id) as pc_visit_dcount
+  "select year(first_service_date) as service_year, count(distinct pc_visit_id) as pc_visit_dcount
   from claims.final_mcaid_claim_header
-  where year(last_service_date) between 2018 and 2022
+  where year(first_service_date) between 2018 and 2022
     and pc_visit_id is not null
-  group by year(last_service_date);",
+  group by year(first_service_date);",
   .con = db_hhsaw)
 
 result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
@@ -373,7 +309,7 @@ sql_query_1 <- glue::glue_sql(
   from [claims].[final_mcaid_claim_header] as a
   left join ref.icdcm_codes as b
   on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
-  where a.ed_pophealth_id is not null and year(a.last_service_date) = 2022
+  where a.ed_pophealth_id is not null and year(a.first_service_date) = 2022
   group by b.ccs_superlevel_desc
   order by ed_pophealth_dcount desc;",
   .con = db_hhsaw)
@@ -386,7 +322,7 @@ sql_query_2 <- glue::glue_sql(
   from [claims].[final_mcaid_claim_header] as a
   left join ref.icdcm_codes as b
   on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
-  where a.ed_pophealth_id is not null and year(a.last_service_date) = 2022
+  where a.ed_pophealth_id is not null and year(a.first_service_date) = 2022
   group by b.ccs_broad_desc
   order by ed_pophealth_dcount desc;",
   .con = db_hhsaw)
@@ -399,7 +335,7 @@ sql_query_3 <- glue::glue_sql(
   from [claims].[final_mcaid_claim_header] as a
   left join ref.icdcm_codes as b
   on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
-  where a.ed_pophealth_id is not null and year(a.last_service_date) = 2022
+  where a.ed_pophealth_id is not null and year(a.first_service_date) = 2022
   group by b.ccs_midlevel_desc
   order by ed_pophealth_dcount desc;",
   .con = db_hhsaw)
@@ -422,7 +358,7 @@ sql_query_1 <- glue::glue_sql(
   from [claims].[final_mcaid_claim_header] as a
   left join ref.icdcm_codes as b
   on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
-  where a.inpatient_id is not null and year(a.last_service_date) = 2022
+  where a.inpatient_id is not null and year(a.first_service_date) = 2022
   group by b.ccs_superlevel_desc
   order by inpatient_dcount desc;",
   .con = db_hhsaw)
@@ -435,7 +371,7 @@ sql_query_2 <- glue::glue_sql(
   from [claims].[final_mcaid_claim_header] as a
   left join ref.icdcm_codes as b
   on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
-  where a.inpatient_id is not null and year(a.last_service_date) = 2022
+  where a.inpatient_id is not null and year(a.first_service_date) = 2022
   group by b.ccs_broad_desc
   order by inpatient_dcount desc;",
   .con = db_hhsaw)
@@ -448,7 +384,7 @@ sql_query_3 <- glue::glue_sql(
   from [claims].[final_mcaid_claim_header] as a
   left join ref.icdcm_codes as b
   on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
-  where a.inpatient_id is not null and year(a.last_service_date) = 2022
+  where a.inpatient_id is not null and year(a.first_service_date) = 2022
   group by b.ccs_midlevel_desc
   order by inpatient_dcount desc;",
   .con = db_hhsaw)
@@ -471,7 +407,7 @@ sql_query_1 <- glue::glue_sql(
   from [claims].[final_mcaid_claim_header] as a
   left join ref.icdcm_codes as b
   on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
-  where a.pc_visit_id is not null and year(a.last_service_date) = 2022
+  where a.pc_visit_id is not null and year(a.first_service_date) = 2022
   group by b.ccs_superlevel_desc
   order by pc_visit_dcount desc;",
   .con = db_hhsaw)
@@ -484,7 +420,7 @@ sql_query_2 <- glue::glue_sql(
   from [claims].[final_mcaid_claim_header] as a
   left join ref.icdcm_codes as b
   on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
-  where a.pc_visit_id is not null and year(a.last_service_date) = 2022
+  where a.pc_visit_id is not null and year(a.first_service_date) = 2022
   group by b.ccs_broad_desc
   order by pc_visit_dcount desc;",
   .con = db_hhsaw)
@@ -497,7 +433,7 @@ sql_query_3 <- glue::glue_sql(
   from [claims].[final_mcaid_claim_header] as a
   left join ref.icdcm_codes as b
   on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
-  where a.pc_visit_id is not null and year(a.last_service_date) = 2022
+  where a.pc_visit_id is not null and year(a.first_service_date) = 2022
   group by b.ccs_midlevel_desc
   order by pc_visit_dcount desc;",
   .con = db_hhsaw)
@@ -509,3 +445,7 @@ arrange(result2, desc(pc_visit_dcount))
 arrange(result3, desc(pc_visit_dcount))
 
 ```
+
+## Change log
+
+- May 2026: Corrected SharePoint links, updated setup code, replaced elig_timevar queries with elig_month table
