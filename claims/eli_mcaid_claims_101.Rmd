@@ -154,7 +154,7 @@ result1
 
 ```
 
-For the second example, let's find all  people with 50% or more of 2023 covered by Medicaid.
+For the second example, let's find all people with 50% or more of 2023 covered by Medicaid.
 
 ```{r 50% and above coverage cohort}
 

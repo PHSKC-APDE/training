@@ -711,14 +711,14 @@ arrange(result1, desc(ed_pophealth_dcount))
 
 | ccs_superlevel_desc              | ed_pophealth_dcount |
 |:---------------------------------|--------------------:|
-| Chronic diseases                 |              866254 |
+| Chronic diseases                 |              866438 |
 | Infectious diseases              |              490502 |
-| Not classified                   |              453055 |
+| Not classified                   |              455051 |
 | Injuries                         |              363820 |
-| Behavioral health disorders      |              103676 |
+| Behavioral health disorders      |              106347 |
 | Pregnancy or birth complications |               64138 |
-| NA                               |                6032 |
 | Congenital anomalies             |                1070 |
+| NA                               |                 290 |
 
 </div>
 
@@ -813,14 +813,14 @@ arrange(result1, desc(inpatient_dcount))
 
 | ccs_superlevel_desc              | inpatient_dcount |
 |:---------------------------------|-----------------:|
-| Chronic diseases                 |           171979 |
+| Chronic diseases                 |           172031 |
 | Pregnancy or birth complications |            79444 |
 | Infectious diseases              |            66385 |
-| Not classified                   |            41051 |
-| Behavioral health disorders      |            39346 |
+| Not classified                   |            41063 |
+| Behavioral health disorders      |            39347 |
 | Injuries                         |            23930 |
 | Congenital anomalies             |             1292 |
-| NA                               |               69 |
+| NA                               |               NA |
 
 </div>
 
@@ -915,14 +915,14 @@ arrange(result1, desc(pc_visit_dcount))
 
 | ccs_superlevel_desc              | pc_visit_dcount |
 |:---------------------------------|----------------:|
-| Chronic diseases                 |         6483310 |
-| Not classified                   |         3440102 |
+| Chronic diseases                 |         6532270 |
+| Not classified                   |         3487793 |
 | Infectious diseases              |         1965985 |
-| Behavioral health disorders      |         1673614 |
+| Behavioral health disorders      |         1675220 |
 | Injuries                         |          505650 |
 | Pregnancy or birth complications |          237175 |
-| NA                               |           99517 |
 | Congenital anomalies             |           28837 |
+| NA                               |             399 |
 
 </div>
 

@@ -1,7 +1,7 @@
 Medicaid claims 101
 ================
 Eli Kern \| PHSKC-APDE \|
-2026-05-11
+2026-05-21
 
 - [Welcome](#welcome)
 - [Setup the environment](#setup-the-environment)
@@ -483,14 +483,13 @@ arrange(result1, desc(ed_pophealth_dcount))
 
 | ccs_superlevel_desc              | ed_pophealth_dcount |
 |:---------------------------------|--------------------:|
-| Chronic diseases                 |              101050 |
+| Chronic diseases                 |              101055 |
 | Infectious diseases              |               69383 |
-| Not classified                   |               60589 |
+| Not classified                   |               60655 |
 | Injuries                         |               44021 |
-| Behavioral health disorders      |               20570 |
+| Behavioral health disorders      |               20576 |
 | Pregnancy or birth complications |               14769 |
 | Congenital anomalies             |                 113 |
-| NA                               |                  88 |
 
 </div>
 
@@ -500,18 +499,18 @@ arrange(result2, desc(ed_pophealth_dcount))
 
 <div class="kable-table">
 
-| ccs_broad_desc                                                                          | ed_pophealth_dcount |
-|:----------------------------------------------------------------------------------------|--------------------:|
-| Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified |               57027 |
-| Injury, poisoning and certain other consequences of external causes                     |               43912 |
-| Diseases of the respiratory system                                                      |               29510 |
-| Certain infectious and parasitic diseases                                               |               22952 |
-| Factors influencing health status and contact with health services                      |               19117 |
-| Mental, behavioral and neurodevelopmental disorders                                     |               18924 |
-| Diseases of the circulatory system                                                      |               18658 |
-| Diseases of the musculoskeletal system and connective tissue                            |               16990 |
-| Pregnancy, childbirth and the puerperium                                                |               14179 |
-| Diseases of the genitourinary system                                                    |               14096 |
+| ccs_broad_desc | ed_pophealth_dcount |
+|:---|---:|
+| Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified | 57027 |
+| Injury, poisoning and certain other consequences of external causes | 43912 |
+| Diseases of the respiratory system | 29510 |
+| Certain infectious and parasitic diseases | 22952 |
+| Factors influencing health status and contact with health services | 19117 |
+| Mental, behavioral and neurodevelopmental disorders | 18924 |
+| Diseases of the circulatory system | 18658 |
+| Diseases of the musculoskeletal system and connective tissue | 16990 |
+| Pregnancy, childbirth and the puerperium | 14179 |
+| Diseases of the genitourinary system | 14096 |
 
 </div>
 
@@ -586,13 +585,12 @@ arrange(result1, desc(inpatient_dcount))
 | ccs_superlevel_desc              | inpatient_dcount |
 |:---------------------------------|-----------------:|
 | Pregnancy or birth complications |            10507 |
-| Chronic diseases                 |             9051 |
+| Chronic diseases                 |             9056 |
 | Behavioral health disorders      |             6200 |
 | Infectious diseases              |             4698 |
 | Not classified                   |             2278 |
 | Injuries                         |             1745 |
 | Congenital anomalies             |              137 |
-| NA                               |               NA |
 
 </div>
 
@@ -602,18 +600,18 @@ arrange(result2, desc(inpatient_dcount))
 
 <div class="kable-table">
 
-| ccs_broad_desc                                                      | inpatient_dcount |
-|:--------------------------------------------------------------------|-----------------:|
-| Certain conditions originating in the perinatal period              |             6364 |
-| Mental, behavioral and neurodevelopmental disorders                 |             6164 |
-| Pregnancy, childbirth and the puerperium                            |             4886 |
-| Certain infectious and parasitic diseases                           |             3312 |
-| Diseases of the circulatory system                                  |             2959 |
-| Diseases of the digestive system                                    |             1971 |
-| Injury, poisoning and certain other consequences of external causes |             1831 |
-| Endocrine, nutritional and metabolic diseases                       |             1591 |
-| Diseases of the respiratory system                                  |             1401 |
-| Diseases of the genitourinary system                                |              690 |
+| ccs_broad_desc | inpatient_dcount |
+|:---|---:|
+| Certain conditions originating in the perinatal period | 6364 |
+| Mental, behavioral and neurodevelopmental disorders | 6164 |
+| Pregnancy, childbirth and the puerperium | 4886 |
+| Certain infectious and parasitic diseases | 3312 |
+| Diseases of the circulatory system | 2959 |
+| Diseases of the digestive system | 1971 |
+| Injury, poisoning and certain other consequences of external causes | 1831 |
+| Endocrine, nutritional and metabolic diseases | 1591 |
+| Diseases of the respiratory system | 1401 |
+| Diseases of the genitourinary system | 690 |
 
 </div>
 
@@ -687,13 +685,12 @@ arrange(result1, desc(pc_visit_dcount))
 
 | ccs_superlevel_desc              | pc_visit_dcount |
 |:---------------------------------|----------------:|
-| Chronic diseases                 |          369092 |
-| Not classified                   |          259047 |
+| Chronic diseases                 |          371414 |
+| Not classified                   |          261447 |
 | Infectious diseases              |          126309 |
-| Behavioral health disorders      |           83230 |
+| Behavioral health disorders      |           83260 |
 | Pregnancy or birth complications |           28055 |
 | Injuries                         |           26605 |
-| NA                               |            4779 |
 | Congenital anomalies             |            2105 |
 
 </div>
@@ -704,18 +701,18 @@ arrange(result2, desc(pc_visit_dcount))
 
 <div class="kable-table">
 
-| ccs_broad_desc                                                                          | pc_visit_dcount |
-|:----------------------------------------------------------------------------------------|----------------:|
-| Factors influencing health status and contact with health services                      |          228312 |
-| Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified |          110513 |
-| Mental, behavioral and neurodevelopmental disorders                                     |           75864 |
-| Diseases of the musculoskeletal system and connective tissue                            |           68221 |
-| Endocrine, nutritional and metabolic diseases                                           |           53641 |
-| Diseases of the respiratory system                                                      |           50841 |
-| Diseases of the circulatory system                                                      |           47800 |
-| Injury, poisoning and certain other consequences of external causes                     |           40321 |
-| Diseases of the genitourinary system                                                    |           40120 |
-| Diseases of the nervous system                                                          |           31320 |
+| ccs_broad_desc | pc_visit_dcount |
+|:---|---:|
+| Factors influencing health status and contact with health services | 228312 |
+| Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified | 110513 |
+| Mental, behavioral and neurodevelopmental disorders | 75864 |
+| Diseases of the musculoskeletal system and connective tissue | 68221 |
+| Endocrine, nutritional and metabolic diseases | 53641 |
+| Diseases of the respiratory system | 50841 |
+| Diseases of the circulatory system | 47800 |
+| Injury, poisoning and certain other consequences of external causes | 40321 |
+| Diseases of the genitourinary system | 40120 |
+| Diseases of the nervous system | 31320 |
 
 </div>
 
