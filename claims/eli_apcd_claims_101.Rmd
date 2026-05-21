@@ -1,0 +1,633 @@
+---
+title: "WA-APCD claims 101"
+author: "Eli Kern | PHSKC-APDE |"
+date: "`r Sys.Date()`"
+output:
+  github_document:
+    toc: true
+    toc_depth: 2
+    df_print: "kable"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Welcome
+
+This script is designed to walk analysts through how to work with WA All-Payer Claims Database (WA-APCD) data maintained by PHSKC. For more background information on claims data overall, check out the [Medicaid claims-focused training slide deck](https://kc1.sharepoint.com/:p:/r/teams/DPH-APDE-Healthcare-Data/Shared%20Documents/Guidance/PHSKC_Medicaid%20claims%20data%20101.pptx?d=wd909065239f24b57b4c48e9528793a31&csf=1&web=1&e=bXVM9g) developed by PHSKC-APDE for PHSKC and DCHS data analysts.
+
+This script is divided into sections corresponding to topics featured in the training slide deck.
+
+## Setup the environment
+
+First, some code to set options, load package libraries, and establish a connection to claims data in the Health & Human Services Analyst Workspace (HHSAW):
+
+```{r environment setup}
+##### Set up global parameters and call in libraries #####
+options(max.print = 350, tibble.print_max = 50, scipen = 999)
+origin <- "1970-01-01" # Date origin
+#devtools::install_github("PHSKC-APDE/claims_data") #install fresh package if it's been awhile
+pacman::p_load(tidyverse, odbc, rads, openxlsx2, claims, rlang, glue, keyring)
+
+#Connect to HHSAW using ODBC driver
+db_hhsaw <- DBI::dbConnect(odbc::odbc(),
+                           driver = "ODBC Driver 17 for SQL Server",
+                           server = "kcitazrhpasqlprp16.database.windows.net",
+                           database = "hhs_analytics_workspace",
+                           Authentication = "ActiveDirectoryIntegrated")
+```
+
+## Counting distinct individuals in claims data
+
+**Counting distinct people.**  
+The following code counts the total number of people in WA-APCD data across all time. PHSKC maintains WA-APCD data from 2014 onward, though data is most complete from 2016 onward.
+
+```{r all-time person count}
+
+#Prep SQL query
+sql_query_1 <- glue::glue_sql(
+  "select count(distinct id_apcd) as id_dcount
+  from claims.final_apcd_elig_demo;",
+  .con = db_hhsaw)
+
+#Send query to HHSAW, store result in R
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+result1$id_dcount
+
+```
+
+**Counting people by mutually inclusive race/ethnicity categories.**  
+Now let's count distinct individuals by race/ethnicity using two approaches. You'll notice that there's a lot of people with unknown race, which we'll explore and explain later on. First, APDE's primary approach - mutually inclusive race/ethnicity categories:
+
+```{r race/eth aic}
+
+sql_query_1 <- glue::glue_sql(
+  "select 'AI/AN' as race_eth, count(distinct id_apcd) as id_dcount
+  from claims.final_apcd_elig_demo
+  where race_aian = 1
+  union select 'Asian' as race_eth, count(distinct id_apcd) as id_dcount
+  from claims.final_apcd_elig_demo
+  where race_asian = 1
+  union select 'Black' as race_eth, count(distinct id_apcd) as id_dcount
+  from claims.final_apcd_elig_demo
+  where race_black = 1
+  union select 'Latino' as race_eth, count(distinct id_apcd) as id_dcount
+  from claims.final_apcd_elig_demo
+  where race_latino = 1
+  union select 'NH/PI' as race_eth, count(distinct id_apcd) as id_dcount
+  from claims.final_apcd_elig_demo
+  where race_nhpi = 1
+  union select 'White' as race_eth, count(distinct id_apcd) as id_dcount
+  from claims.final_apcd_elig_demo
+  where race_white = 1
+  union select 'Unknown' as race_eth, count(distinct id_apcd) as id_dcount
+  from claims.final_apcd_elig_demo
+  where race_unknown = 1;",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+arrange(result1, race_eth)
+
+```
+
+**Counting people by mutually exclusive race/ethnicity categories.**  
+Now let's count people using mutually exclusive race/ethnicity categories where people identifying with more than one race/ethnicity are included in the Multiple Race group.
+
+```{r race_eth_me}
+
+sql_query_1 <- glue::glue_sql(
+  "select race_eth_me, count(distinct id_apcd) as id_dcount
+  from claims.final_apcd_elig_demo
+  group by race_eth_me;",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+arrange(result1, race_eth_me)
+
+```
+
+**Calculating age.**  
+Now let's calculate the minimum, maximum, and mean age of people in the WA-APCD. To calculate age, we have to choose a reference date - let's choose December 31, 2023. One note - we don't actually have date of birth (as this is a direct identifier), but we have an estimated date of birth using information about how people's age changes month-to-month (notice that all date of birth values are the 1st of the month).
+
+```{r age}
+
+reference_date <- "2023-12-31"
+
+sql_query_1 <- glue::glue_sql(
+  "with age_20231231 as (
+  	select id_apcd,
+  	case
+  		when (datediff(day, dob, {reference_date}) + 1) >= 0 then floor((datediff(day, dob, {reference_date}) + 1) / 365.25)
+      when datediff(day, dob, {reference_date}) < 0 then NULL
+    end as age
+  	from claims.final_apcd_elig_demo
+  )
+  select min(age) as age_min, max(age) as age_max, cast(round(avg(age),1) as numeric(4,1)) as age_mean
+  from age_20231231;",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+result1
+
+```
+
+**Selecting people with coverage during a measurement window.**  
+Now let's start to work with time-varying concepts, beginning with coverage start and end dates. Note that people enter and exit the data for three reasons: 1) people gain or lose a type of insurance coverage that is included in the WA-APCD (change in eligibility), 2) people move into or out of WA State, or 3) people are born or die. With the exception of people entering due to birth, we cannot differentiate between any of the other reasons.
+
+For this first example, let's find all the people with 1 or more day of any type of medical coverage (med_covgrp > 0) in 2023. We're also going to limit our query to WA state residents (geo_wa = 1), as the WA-APCD does contain some information on people living outside of WA state. The `[claims].[final_apcd_elig_month]` table contains monthly records mapped to a range of time-varying concepts.
+
+```{r overall medical coverage cohort}
+
+reference_from_date <- "2023-01-01"
+reference_to_date <- "2023-12-31"
+
+sql_query_1 <- glue::glue_sql(
+  "select count(distinct id_apcd) as id_dcount
+  from claims.final_apcd_elig_month
+  where from_date between {reference_from_date} and {reference_to_date}
+    and med_covgrp > 0
+    and geo_wa = 1;",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+result1
+
+```
+
+For the second example, let's find all WA state residents with 50% or more of 2023 covered by Medicaid medical coverage. Note that this same approach can be used to identify people with dental or pharmacy coverage, and we can subset people by insurance market (i.e., Medicaid, Medicare, Commercial).
+
+```{r 50% and above Medicaid medical coverage cohort}
+
+reference_from_date <- "2023-01-01"
+reference_to_date <- "2023-12-31"
+reference_period <- interval(ymd(reference_from_date), ymd(reference_to_date))
+reference_days <- reference_period %/% days(1) + 1
+
+sql_query_1 <- glue::glue_sql(
+  "with cov_2023 as (
+    select id_apcd, sum(cov_time_day) as cov_time_day
+    from claims.final_apcd_elig_month
+    where from_date between {reference_from_date} and {reference_to_date}
+      and med_medicaid = 1
+      and geo_wa = 1
+    group by id_apcd
+  )
+  select count(distinct id_apcd) as id_dcount
+  from cov_2023
+  where cov_time_day*1.0/{reference_days}*100.0 >= 50.0;",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+result1
+
+```
+
+**Assigning people to a single geography for a given measurement window.**  
+People move and thus when conducting an analysis for a given measurement window (let's use 2023 again), we often want to assign each person only once to geographic concepts, such as county of residence, to avoid people being counted more than once in a descriptive analysis.
+
+Let's use the following code to 1) assign a single county to each Medicaid members for 2023, and 2) count distinct people by county of residence for the 10 counties  with the largest number of Medicaid members
+
+```{r county selection}
+
+reference_from_date <- "2023-01-01"
+reference_to_date <- "2023-12-31"
+
+sql_query_1 <- glue::glue_sql(
+  "with county_cov_time as (
+    select id_apcd, geo_county, sum(cov_time_day) as cov_time_day
+    from claims.final_apcd_elig_month
+    where from_date between {reference_from_date} and {reference_to_date}
+      and geo_wa = 1
+    group by id_apcd, geo_county
+  ),
+  
+  county_ranks as (
+    select id_apcd, geo_county, cov_time_day,
+    rank() over(partition by id_apcd
+      order by case when geo_county is null then 1 else 0 end, cov_time_day desc, geo_county)
+	    as county_rank
+    from county_cov_time
+  )
+  
+  select top 10 geo_county, count(distinct id_apcd) as id_dcount
+  from county_ranks
+  where county_rank = 1
+  group by geo_county
+  order by id_dcount desc;",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+
+#Apply small number suppression
+result1_cat1 <- result1 %>%
+  mutate(id_dcount = case_when(
+    between(id_dcount, 1, 10) ~ NA_integer_,
+    TRUE ~ id_dcount
+  ))
+arrange(result1_cat1, desc(id_dcount))
+```
+
+**Exploring race/ethnicity by insurance market.**  
+Let's come back to race/ethnicity, and explore across insurance markets (Medicaid, Medicare, Commercial), as this is a critical consideration when using WA-APCD data for equity analyses. We'll use calendar year 2022. This code is long because we're working with mutually inclusive concepts (market, race). First, we identify WA state residents for each market in 2022, then we add up the number of people in the numerator and denominator for each racial/ethnic group. Lastly, we calculate percentages. Be sure to check out how the percentage of people with unknown race/ethnicity varies across insurance markets.
+
+```{r race/eth market}
+
+sql_query_1 <- glue::glue_sql(
+  "with medicaid as (
+  	select distinct a.id_apcd, b.race_aian, b.race_asian, b.race_black, b.race_latino, b.race_nhpi,
+  		b.race_white, b.race_unknown,
+  		'Medicaid' as market
+  	from claims.final_apcd_elig_month as a
+  	left join claims.final_apcd_elig_demo as b
+  	on a.id_apcd = b.id_apcd
+  	where med_medicaid = 1
+  		and geo_wa = 1
+  		and year = 2022
+  ),
+  medicare as (
+  	select distinct a.id_apcd, b.race_aian, b.race_asian, b.race_black, b.race_latino, b.race_nhpi,
+  		b.race_white, b.race_unknown,
+  		'Medicare' as market
+  	from claims.final_apcd_elig_month as a
+  	left join claims.final_apcd_elig_demo as b
+  	on a.id_apcd = b.id_apcd
+  	where med_medicare = 1
+  		and geo_wa = 1
+  		and year = 2022
+  ),
+  commercial as (
+  	select distinct a.id_apcd, b.race_aian, b.race_asian, b.race_black, b.race_latino, b.race_nhpi,
+  		b.race_white, b.race_unknown,
+  		'Commercial' as market
+  	from claims.final_apcd_elig_month as a
+  	left join claims.final_apcd_elig_demo as b
+  	on a.id_apcd = b.id_apcd
+  	where med_commercial = 1
+  		and geo_wa = 1
+  		and year = 2022
+  ),
+  mcaid_denom as (
+  	select market, count(distinct id_apcd) as denom
+  	from medicaid
+  	group by market
+  ),
+  mcare_denom as (
+  	select market, count(distinct id_apcd) as denom
+  	from medicare
+  	group by market
+  ),
+  comm_denom as (
+  	select market, count(distinct id_apcd) as denom
+  	from commercial
+  	group by market
+  ),
+  mcaid_num as (
+  	select 'AI/AN' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from medicaid
+  	where race_aian = 1
+  	group by market
+  	union select 'Asian' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from medicaid
+  	where race_asian = 1
+  	group by market
+  	union select 'Black' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from medicaid
+  	where race_black = 1
+  	group by market
+  	union select 'Latino' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from medicaid
+  	where race_latino = 1
+  	group by market
+  	union select 'NH/PI' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from medicaid
+  	where race_nhpi = 1
+  	group by market
+  	union select 'White' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from medicaid
+  	where race_white = 1
+  	group by market
+  	union select 'Unknown' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from medicaid
+  	where race_unknown = 1
+  	group by market
+  ),
+  mcare_num as (
+  	select 'AI/AN' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from medicare
+  	where race_aian = 1
+  	group by market
+  	union select 'Asian' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from medicare
+  	where race_asian = 1
+  	group by market
+  	union select 'Black' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from medicare
+  	where race_black = 1
+  	group by market
+  	union select 'Latino' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from medicare
+  	where race_latino = 1
+  	group by market
+  	union select 'NH/PI' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from medicare
+  	where race_nhpi = 1
+  	group by market
+  	union select 'White' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from medicare
+  	where race_white = 1
+  	group by market
+  	union select 'Unknown' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from medicare
+  	where race_unknown = 1
+  	group by market
+  ),
+  comm_num as (
+  	select 'AI/AN' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from commercial
+  	where race_aian = 1
+  	group by market
+  	union select 'Asian' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from commercial
+  	where race_asian = 1
+  	group by market
+  	union select 'Black' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from commercial
+  	where race_black = 1
+  	group by market
+  	union select 'Latino' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from commercial
+  	where race_latino = 1
+  	group by market
+  	union select 'NH/PI' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from commercial
+  	where race_nhpi = 1
+  	group by market
+  	union select 'White' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from commercial
+  	where race_white = 1
+  	group by market
+  	union select 'Unknown' as race_eth, count(distinct id_apcd) as id_dcount, market
+  	from commercial
+  	where race_unknown = 1
+  	group by market
+  )
+  select 
+  a.market,
+  a.race_eth, 
+  a.id_dcount,
+  b.denom,
+  round(cast(a.id_dcount*1.0/b.denom*100.0 as numeric(4,1)),1) as [percent]
+  from mcaid_num as a
+  left join mcaid_denom as b
+  on a.market = b.market
+  
+  union select 
+  a.market,
+  a.race_eth, 
+  a.id_dcount,
+  b.denom,
+  round(cast(a.id_dcount*1.0/b.denom*100.0 as numeric(4,1)),1) as [percent]
+  from mcare_num as a
+  left join mcare_denom as b
+  on a.market = b.market
+  
+  union select 
+  a.market,
+  a.race_eth, 
+  a.id_dcount,
+  b.denom,
+  round(cast(a.id_dcount*1.0/b.denom*100.0 as numeric(4,1)),1) as [percent]
+  from comm_num as a
+  left join comm_denom as b
+  on a.market = b.market;",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+arrange(result1, race_eth, market)
+
+```
+
+## Counting health care encounters
+
+**Counting emergency department visits.**  
+The following code counts the total number of *distinct* emergency department (ED) visits by year from 2018-2022, using two different definitions for ED visit. The standard definition used by APDE is the `ed_pophealth_id` field, as uses a broader definition of an ED visit than the `ed_perform_id` field.
+
+```{r ed_visits}
+
+sql_query_1 <- glue::glue_sql(
+  "select a.service_year, a.ed_pophealth_dcount, b.ed_perform_dcount
+  from (
+    select year(first_service_date) as service_year, count(distinct ed_pophealth_id) as ed_pophealth_dcount
+    from claims.final_apcd_claim_header
+    where year(first_service_date) between 2018 and 2022
+      and ed_pophealth_id is not null
+    group by year(first_service_date)
+  ) as a
+  left join (
+    select year(first_service_date) as service_year, count(distinct ed_perform_id) as ed_perform_dcount
+    from claims.final_apcd_claim_header
+    where year(first_service_date) between 2018 and 2022
+      and ed_perform_id is not null
+    group by year(first_service_date)
+  ) as b
+  on a.service_year = b.service_year;",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+arrange(result1, service_year)
+
+```
+
+**Counting inpatient hospital stays.**  
+The following code counts the total number of *distinct* acute inpatient stays by year from 2018-2022, which includes hospitalizations for both medical reasons and for labor and delivery.
+
+```{r inpatient}
+
+sql_query_1 <- glue::glue_sql(
+  "select year(first_service_date) as service_year, count(distinct inpatient_id) as inpatient_dcount
+  from claims.final_apcd_claim_header
+  where year(first_service_date) between 2018 and 2022
+    and inpatient_id is not null
+  group by year(first_service_date);",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+arrange(result1, service_year)
+
+```
+
+**Counting primary care visits.**  
+The following code counts the total number of *distinct* primary care visits by year from 2018-2022.
+
+```{r primary_care_visit}
+
+sql_query_1 <- glue::glue_sql(
+  "select year(first_service_date) as service_year, count(distinct pc_visit_id) as pc_visit_dcount
+  from claims.final_apcd_claim_header
+  where year(first_service_date) between 2018 and 2022
+    and pc_visit_id is not null
+  group by year(first_service_date);",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+arrange(result1, service_year)
+
+```
+
+## Identifying reasons for health care encounters (i.e., diagnoses)
+
+The `[ref].[icdcm_codes]` table provides a 4-level cause categorization framework for grouping raw ICD-CM codes into categories that are a bit easier for us analysts to work with. For ICD-10-CM (diagnosis coding scheme that was introduced to the US in October 2015), this framework can be used to group the 100,666 raw ICD-10-CM codes into a *super-level* category (7 causes), a *broad* category (22 causes), a *mid-level* category (176 causes), and a *detailed* category (515 causes).
+
+For the purpose of this demonstration, we will use the superlevel, broad, and midlevel categorizations to identify the top 10 causes of ED visits, inpatient stays, and primary care visits in 2022, using the primary diagnosis only on each claim.
+
+**Leading causes of ED visits in 2022.**  
+
+```{r leading causes ed}
+
+sql_query_1 <- glue::glue_sql(
+  "select top 10 b.ccs_superlevel_desc,
+  case when count(distinct ed_pophealth_id) between 1 and 10 then null else count(distinct ed_pophealth_id) end as ed_pophealth_dcount
+  from claims.final_apcd_claim_header as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.ed_pophealth_id is not null and year(a.first_service_date) = 2022
+  group by b.ccs_superlevel_desc
+  order by ed_pophealth_dcount desc;",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+
+sql_query_2 <- glue::glue_sql(
+  "select top 10 b.ccs_broad_desc,
+  case when count(distinct ed_pophealth_id) between 1 and 10 then null else count(distinct ed_pophealth_id) end as ed_pophealth_dcount
+  from claims.final_apcd_claim_header as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.ed_pophealth_id is not null and year(a.first_service_date) = 2022
+  group by b.ccs_broad_desc
+  order by ed_pophealth_dcount desc;",
+  .con = db_hhsaw)
+
+result2 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_2)
+
+sql_query_3 <- glue::glue_sql(
+  "select top 10 b.ccs_midlevel_desc,
+  case when count(distinct ed_pophealth_id) between 1 and 10 then null else count(distinct ed_pophealth_id) end as ed_pophealth_dcount
+  from claims.final_apcd_claim_header as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.ed_pophealth_id is not null and year(a.first_service_date) = 2022
+  group by b.ccs_midlevel_desc
+  order by ed_pophealth_dcount desc;",
+  .con = db_hhsaw)
+
+result3 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_3)
+
+arrange(result1, desc(ed_pophealth_dcount))
+arrange(result2, desc(ed_pophealth_dcount))
+arrange(result3, desc(ed_pophealth_dcount))
+
+```
+
+**Leading causes of inpatient stays in 2022**  
+
+```{r leading causes inpatient}
+
+sql_query_1 <- glue::glue_sql(
+  "select top 10 b.ccs_superlevel_desc,
+  case when count(distinct inpatient_id) between 1 and 10 then null else count(distinct inpatient_id) end as inpatient_dcount
+  from claims.final_apcd_claim_header as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.inpatient_id is not null and year(a.first_service_date) = 2022
+  group by b.ccs_superlevel_desc
+  order by inpatient_dcount desc;",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+
+sql_query_2 <- glue::glue_sql(
+  "select top 10 b.ccs_broad_desc,
+  case when count(distinct inpatient_id) between 1 and 10 then null else count(distinct inpatient_id) end as inpatient_dcount
+  from claims.final_apcd_claim_header as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.inpatient_id is not null and year(a.first_service_date) = 2022
+  group by b.ccs_broad_desc
+  order by inpatient_dcount desc;",
+  .con = db_hhsaw)
+
+result2 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_2)
+
+sql_query_3 <- glue::glue_sql(
+  "select top 10 b.ccs_midlevel_desc,
+  case when count(distinct inpatient_id) between 1 and 10 then null else count(distinct inpatient_id) end as inpatient_dcount
+  from claims.final_apcd_claim_header as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.inpatient_id is not null and year(a.first_service_date) = 2022
+  group by b.ccs_midlevel_desc
+  order by inpatient_dcount desc;",
+  .con = db_hhsaw)
+
+result3 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_3)
+
+arrange(result1, desc(inpatient_dcount))
+arrange(result2, desc(inpatient_dcount))
+arrange(result3, desc(inpatient_dcount))
+
+```
+
+**Leading causes of primary care visits in 2022**  
+
+```{r leading causes primary care visits}
+
+sql_query_1 <- glue::glue_sql(
+  "select top 10 b.ccs_superlevel_desc,
+  case when count(distinct pc_visit_id) between 1 and 10 then null else count(distinct pc_visit_id) end as pc_visit_dcount
+  from claims.final_apcd_claim_header as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.pc_visit_id is not null and year(a.first_service_date) = 2022
+  group by b.ccs_superlevel_desc
+  order by pc_visit_dcount desc;",
+  .con = db_hhsaw)
+
+result1 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_1)
+
+sql_query_2 <- glue::glue_sql(
+  "select top 10 b.ccs_broad_desc,
+  case when count(distinct pc_visit_id) between 1 and 10 then null else count(distinct pc_visit_id) end as pc_visit_dcount
+  from claims.final_apcd_claim_header as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.pc_visit_id is not null and year(a.first_service_date) = 2022
+  group by b.ccs_broad_desc
+  order by pc_visit_dcount desc;",
+  .con = db_hhsaw)
+
+result2 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_2)
+
+sql_query_3 <- glue::glue_sql(
+  "select top 10 b.ccs_midlevel_desc,
+  case when count(distinct pc_visit_id) between 1 and 10 then null else count(distinct pc_visit_id) end as pc_visit_dcount
+  from claims.final_apcd_claim_header as a
+  left join ref.icdcm_codes as b
+  on (a.primary_diagnosis = b.icdcm) and (a.icdcm_version = b.icdcm_version)
+  where a.pc_visit_id is not null and year(a.first_service_date) = 2022
+  group by b.ccs_midlevel_desc
+  order by pc_visit_dcount desc;",
+  .con = db_hhsaw)
+
+result3 <- dbGetQuery(conn = db_hhsaw, statement = sql_query_3)
+
+arrange(result1, desc(pc_visit_dcount))
+arrange(result2, desc(pc_visit_dcount))
+arrange(result3, desc(pc_visit_dcount))
+
+```
+
+## Change log
+
+- May 2026: Initial version released.
