@@ -1,6 +1,6 @@
-##RADS practice
-##Assigning populations to arbitrary radius around a point location
-##Ronald Buie, December 2023
+#RADS practice
+#Assigning populations to arbitrary radius around a point location
+#Ronald Buie, 2026-06-01
 
 ##Load packages and set defaults
 pacman::p_load(apde.data, data.table, dplyr, gh, gitcreds, ggplot2, ggrepel, ggthemes, keyring, lubridate, openxlsx, rads, rads.data, rstudioapi, sf, spatagg, kcparcelpop, tidyverse, usethis)
