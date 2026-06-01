@@ -1,64 +1,22 @@
-##RADS practice
-##Analyzing death data using age-standardized rates##
-##Ronald Buie, Aug 2023
+#RADS practice
+#Analyzing death data using age-standardized rates
+#Ronald Buie, 2026-06-01
 
+pacman::p_load(apde.data, data.table, dplyr, gh, gitcreds, ggplot2, ggrepel, ggthemes, keyring, lubridate, openxlsx, rads, rads.data, rstudioapi, sf, tidyverse, usethis)
 
-#### Background ####
-#The following is an R script introducing users to a basic analysis of APDE data.
-#It is part of a larger set of training resources that can be found here: https://github.com/PHSKC-APDE/R_training
-#
-#This vignette relies on our in-house analytics package "R Analytics "R Automatic Data System" or RADS. You can find RADS and installation instructions here: <link to RADS repository
-#
-#This vignette assumes you have access to the necessary data. If you do not, or are not sure, please reach out to your manager.
-#
-#A recorded presentation of this script, with audience Q/A can be found here:
-#
-#This script walks through how to access death data and perform an age standardized calculation using RADS
-#
-#You can find this, and the rest of our training scripts at https://github.com/PHSKC-APDE/R_training/tree/main/r_practice
-#
-#Based on vignette found at https://github.com/PHSKC-APDE/rads/wiki/calculating_rates_with_rads
-#
-#More about age_standardize() https://github.com/PHSKC-APDE/rads/wiki/age_standardize
-#
-#Other death functions: https://github.com/PHSKC-APDE/rads/wiki/death_functions
-#
-
-#### Setup ####
-
-
-
-##Load packages and set defaults
-pacman::p_load(data.table) # Load list of packages
-library(rads) #if rads is not installed, pacman cannot auto install it for you. Loading it separately will make any error easier to see.
-##Install or update RADS if not already insatlled
-#remotes::install_github("PHSKC-APDE/rads", auth_token = NULL) #install RADS for the first time
-#remotes::update_packages("rads") #update RADS if it is out of date
-library(rads.data) #if rads.data is not installed, pacman cannot auto install it for you
-
-##Set environment options
-options(max.print = 350) # Limit # of rows to show when printing/showing a data.frame
-options(tibble.print_max = 50) # Limit # of rows to show when printing/showing a tibble (a tidyverse-flavored data.frame)
-options(scipen = 999) # Avoid scientific notation
-origin <- "1970-01-01" # Set the origin date, which is needed for many data/time functions
-export_path <- "C:/Users/REPLACE WITH YOUR USER NAME/OneDrive - King County/" #replace with your desired path, use forward slashes
-
-
-
-#### Vignette ####
+localPath <- dirname(rstudioapi::getActiveDocumentContext()$path) #getActiveDocumentContext pulls the full path of the script it is ran from. dirname extracts the directtory from a given path, removing the file name at the end. We save this to get the directory for this user/instance.
 
 #For this analysis, we will calculate the age-adjusted mortality rate for deaths by falling in the years 2016 through 2020, stratified by the intention in death (i.e. suicide, homicide, accident, ect...).
 
 #step 1, generate numerators of deaths by age and type
 
 #You can view the columns available for a data set by using the list_dataset_columns function and specifying the desired data set
-columns <- rads::list_dataset_columns("death")
+deat_data_column_names <- apde.data::list_data_columns("death")
 
 #Pull data using RADS::get_data_death
 #note that get_data_death is the same as get_data with the dataset = "death"
-individual.deaths <- rads::get_data_death(cols = c('chi_age',
+individual.deaths <- apde.data::death(cols = c('chi_age',
                                   'chi_year',
-                                  'chi_geo_seattle',
                                   'underlying_cod_code'),
                          year = c(2016:2020),
                          kingco = T)
@@ -67,7 +25,7 @@ names(individual.deaths) #print the names of the variables in our new data.tabe 
 
 #we now want to turn these individual decedent observations into totals of death by type and age.
 #We can use the rads::death_injury_matrix_count() function to do this
-aggregate.deaths <- death_injury_matrix_count(ph.data = individual.deaths,
+aggregate.deaths <- rads::death_injury_matrix_count(ph.data = individual.deaths,
                     intent = "*", #will capture all 5 intents
                     mechanism = "fall",
                     icdcol = "underlying_cod_code",
@@ -87,7 +45,7 @@ head(aggregate.deaths[count >9])
 
 #we can use rads::get_population to pull relevant denominators. Because our analysis is by age, we should include this in the group_by variable
 # this will return a table with the total population unique people in king county , for each age 0-100, from the years 2016 to 2020
-population <- rads::get_population(years = c(2016:2020),
+population <- apde.data::population(years = c(2016:2020),
                                    geo_type = 'kc',
                                    group_by = c('ages'))
 head(population)
