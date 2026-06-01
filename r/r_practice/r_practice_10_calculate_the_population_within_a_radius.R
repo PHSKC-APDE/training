@@ -2,28 +2,9 @@
 ##Assigning populations to arbitrary radius around a point location
 ##Ronald Buie, December 2023
 
-#### Background ####
-#The following is an R script introducing users to a basic geospatial analysis using common APDE resources
-#It is part of a larger set of training resources that can be found here: https://github.com/PHSKC-APDE/R_training/tree/main/r_practice
-#
-#This vignette relies on our in-house analytics package "R Analytics "R Automatic Data System" or RADS. You can find RADS and installation instructions here: https://github.com/PHSKC-APDE/rads
-#
-#This vignette also relies on Daniel's SpatAgg package to assist geospatial aggregation of populations. You can find spatagg and installation instruction here: https://github.com/PHSKC-APDE/spatagg
-#
-#A recorded presentation of this script, with audience Q/A can be found here:
-#
-
-#### Setup ####
-
 ##Load packages and set defaults
-pacman::p_load(data.table,
-               sf,
-               flextable,
-               ggplot2) # Load list of packages
-library(rads) #if rads is not installed, pacman cannot auto install it for you. Loading it separately will make any error easier to see.
-library(spatagg)
+pacman::p_load(apde.data, data.table, dplyr, gh, gitcreds, ggplot2, ggrepel, ggthemes, keyring, lubridate, openxlsx, rads, rads.data, rstudioapi, sf, spatagg, kcparcelpop, tidyverse, usethis)
 
-#### Vignette ####
 
 #first, we need places and coordinates. These were manually pulled from google maps searches and typed here
 PizzaPlaces <- data.table("restaurant" = c("Flying Squirrel Pizza Co.", "Mamma Melina Ristorante & Pizzeria", "ROCCO'S", "Serious Pie Downtown", "Jackson Street Pizza Lounge", "Blotto"),
@@ -45,7 +26,7 @@ BlockShapes <- st_transform(BlockShapes, st_crs(crsString)) #conform to same crs
 
 #get KC population estimates. Note, if a radius desired extends outside the county, then need to expand. Will greatly slow down calculations
 #if not saved, pull and save. Otherwise, load from save
-KCPops <- get_population(geo_type = "blk", kingco = T, year = 2022)
+KCPops <- apde.data::population(geo_type = "blk", kingco = T, year = 2022)
 
 #loop through restaurants, generate crosswalk of overlapping populations, and assign population to restaurant table
 for(rowIndex in 1:nrow(PizzaGeos)) {

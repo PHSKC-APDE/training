@@ -17,16 +17,18 @@
 #https://tinyurl.com/zemwyucb
 
 ##Install RADS
-remotes::install_github("PHSKC-APDE/rads", auth_token = NULL) #install RADS for the first time
-remotes::update_packages("rads") #update RADS if it is out of date
-remotes::install_github("PHSKC-APDE/apde.data")
+remotes::install_github("PHSKC-APDE/rads", auth_token = NULL) #https://github.com/PHSKC-APDE/rads
+remotes::install_github("PHSKC-APDE/apde.data") #https://github.com/PHSKC-APDE/apde.data
+remotes::install_github('https://github.com/PHSKC-APDE/spatagg') #https://github.com/PHSKC-APDE/spatagg
+remotes::install_github('https://github.com/PHSKC-APDE/kcparcelpop/') #https://github.com/PHSKC-APDE/spatagg
+
 
 ##Install pacman packages for easier installation/loading of packages
 install.packages("pacman")
 
 ##Load (or install) packages used for exercises
 #Note that we will be using both tidyverse and data.table in these practice exercises
-pacman::p_load(apde.data, data.table, dplyr, gh, gitcreds, ggplot2, ggrepel, ggthemes, keyring, lubridate, openxlsx, rads, rads.data, rstudioapi, sf, tidyverse, usethis)
+pacman::p_load(apde.data, data.table, dplyr, gh, gitcreds, ggplot2, ggrepel, ggthemes, keyring, lubridate, openxlsx, rads, rads.data, rstudioapi, sf, spatagg, kcparcelpop, tidyverse, usethis)
 
 ##Set defaults
 #options(max.print = 350, tibble.print_max = 50, scipen = 999) #these are popular with some people, for some reason...
