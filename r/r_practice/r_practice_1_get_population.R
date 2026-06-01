@@ -1,6 +1,6 @@
-##RADS practice
-##Exploring the get_population function##
-##Ronald Buie, 2026-06-01
+#RADS practice
+#Exploring the get_population function##
+#Ronald Buie, 2026-06-01
 
 pacman::p_load(apde.data, data.table, dplyr, gh, gitcreds, ggplot2, ggrepel, ggthemes, keyring, lubridate, openxlsx, rads, rads.data, rstudioapi, sf, tidyverse, usethis)
 
