@@ -4,8 +4,6 @@
 
 pacman::p_load(apde.data, data.table, dplyr, gh, gitcreds, ggplot2, ggrepel, ggthemes, keyring, lubridate, openxlsx, rads, rads.data, rstudioapi, sf, tidyverse, usethis)
 
-localPath <- dirname(rstudioapi::getActiveDocumentContext()$path) #getActiveDocumentContext pulls the full path of the script it is ran from. dirname extracts the directtory from a given path, removing the file name at the end. We save this to get the directory for this user/instance.
-
 #You can view the columns available for a data set by using the list_dataset_columns function and specifying the desired data set
 cols_from_birth_data <- apde.data::list_data_columns("birth")
 

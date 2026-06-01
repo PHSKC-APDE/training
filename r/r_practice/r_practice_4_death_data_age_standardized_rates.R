@@ -4,8 +4,6 @@
 
 pacman::p_load(apde.data, data.table, dplyr, gh, gitcreds, ggplot2, ggrepel, ggthemes, keyring, lubridate, openxlsx, rads, rads.data, rstudioapi, sf, tidyverse, usethis)
 
-localPath <- dirname(rstudioapi::getActiveDocumentContext()$path) #getActiveDocumentContext pulls the full path of the script it is ran from. dirname extracts the directtory from a given path, removing the file name at the end. We save this to get the directory for this user/instance.
-
 #For this analysis, we will calculate the age-adjusted mortality rate for deaths by falling in the years 2016 through 2020, stratified by the intention in death (i.e. suicide, homicide, accident, ect...).
 
 #step 1, generate numerators of deaths by age and type
