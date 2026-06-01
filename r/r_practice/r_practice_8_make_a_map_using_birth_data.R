@@ -1,34 +1,24 @@
 ##RADS practice
 ##Make a map (extra credit)##
-##Eli Kern, June 2023
+#Ronald Buie, 2026-06-01
 
-#### Setup ####
+pacman::p_load(apde.data, data.table, dplyr, gh, gitcreds, ggplot2, ggrepel, ggthemes, keyring, lubridate, openxlsx, rads, rads.data, rstudioapi, sf, tidyverse, usethis)
 
-##Install RADS
-#remotes::install_github("PHSKC-APDE/rads", auth_token = NULL) #install RADS for the first time
-remotes::update_packages("rads") #update RADS if it is out of date
-
-##Load packages and set defaults
-pacman::p_load(tidyverse, rads, rads.data, openxlsx, sf, data.table, ggrepel, ggthemes) # Load list of packages
-options(max.print = 350) # Limit # of rows to show when printing/showing a data.frame
-options(tibble.print_max = 50) # Limit # of rows to show when printing/showing a tibble (a tidyverse-flavored data.frame)
-options(scipen = 999) # Avoid scientific notation
-origin <- "1970-01-01" # Set the origin date, which is needed for many data/time functions
-export_path <- "C:/Users/REPLACE WITH YOUR USER NAME/OneDrive - King County/" #replace with your desired path, use forward slashes
+localPath <- dirname(rstudioapi::getActiveDocumentContext()$path) #getActiveDocumentContext pulls the full path of the script it is ran from. dirname extracts the directtory from a given path, removing the file name at the end. We save this to get the directory for this user/instance.
 
 
 ##Goal: Make an HRA-based map of smoking during pregnancy for the most recent 10-year period
 
 ##Load birth data for 2012-2021
-birth <- get_data_birth(cols = c("chi_year", "smoking_dur", "chi_geo_hra2020_id", "chi_geo_hra2020_name"),
+birth <- apde.data::birth(cols = c("chi_year", "smoking_dur", "apde_geo_hra2020_id", "apde_geo_hra2020_short"),
                         year = c(2012:2021),
                         kingco = T)
 
 ##Use calc to generate proportion of births where mother smoked during pregnancy, by HRA
-results <- calc(ph.data = birth,
+results <-rads::calc(ph.data = birth,
      what = c("smoking_dur"),
      metrics = c("mean", "rse", "numerator", "denominator"),
-     by = c("chi_geo_hra2020_id", "chi_geo_hra2020_name"),
+     by = c("apde_geo_hra2020_id", "apde_geo_hra2020_short"),
      time_var = "chi_year")
 
 ##Convert proportions to percentages, and suppress small numbers per APDE guidelines (i.e., 1-9)
@@ -46,14 +36,14 @@ results <- results %>%
     mean_upper_percent = rads::round2(mean_upper*100,1))
 
 ##Remove result(s) row for null HRAs (births that could not be geocoded)
-results <- filter(results, !is.na(chi_geo_hra2020_id))
+results <- filter(results, !is.na(apde_geo_hra2020_id))
 
 ##Load HRA shapefile
 hra2020 <- st_read("\\\\dphcifs/apde-cdip/shapefiles/hra/hra_2020_nowater.shp")
 city <- st_read("\\\\gisdw/kclib/Plibrary2/census/shapes/polygon/place10.shp")
 
 ##Merge birth results dataset with HRA shapefile
-map <- merge(results, hra2020, by.x = "chi_geo_hra2020_id", by.y = "id", all.x = T, all.y = F)
+map <- merge(results, hra2020, by.x = "apde_geo_hra2020_id", by.y = "id", all.x = T, all.y = F)
 
 ##Convert map object to shapefile to prepare for mapping
 map <- st_as_sf(map)
@@ -111,4 +101,4 @@ plot(my.map1)
 ##Export map
 ggsave(paste0("smoking_during_pregnancy_hra_2012-2021_", gsub("-", "_", Sys.Date()), ".png"),
        plot = last_plot(), dpi=600, width = 11, height = 8.5, units = "in",
-       path = export_path)
+       path = localPath)

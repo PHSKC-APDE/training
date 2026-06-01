@@ -1,52 +1,14 @@
-##RADS practice
-##Analyzing CHARS data##
-##Ronald Buie, Dec 2023
+#RADS practice
+#Analyzing CHARS data
+#Ronald Buie, 2026-06-01
 
-
-#### Background ####
-# The following is an R script introducing users to a basic analysis of APDE CHARS data. It walks through how to access CHARS data and perform some of our routine analyses.
-#
-# It is part of a larger set of training resources that can be found here: https://github.com/PHSKC-APDE/R_training
-#
-# This vignette relies on our in-house analytics package "R Analytics "R Automatic Data System" or RADS. You can find RADS and installation instructions here: https://github.com/PHSKC-APDE/rads
-#
-# This vignette assumes you have access to the necessary data. If you do not, or are not sure, please reach out to your manager.
-#
-# A recorded presentation of this script, with audience Q/A can be found here:
-#
-# You can find this, and the rest of our training scripts at https://github.com/PHSKC-APDE/R_training/tree/main/r_practice
-#
-# Based on vignette found at https://github.com/PHSKC-APDE/rads/wiki/chars_functions
-#
-# Background information:
-# APDE's CHARS data classifications are based https://hcup-us.ahrq.gov/toolssoftware/ccsr/dxccsr.jsp
-# You can read more about any particular ICD10 codes here: https://www.cdc.gov/nchs/icd/icd10cm_browsertool.htm
-# You can read more about ICD10 injury classification here: https://www.cdc.gov/nchs/injury/injury_tools.htm
-# Nonfatal injury report data elements: https://www.cdc.gov/injury/wisqars/nonfatal_help/definitions_nonfatal.html
-
-
-
-#### Setup ####
-
-##Install RADS
-#remotes::install_github("PHSKC-APDE/rads", auth_token = NULL) #install RADS for the first time
-remotes::update_packages("rads") #update RADS if it is out of date
-
-##Load packages and set defaults
-pacman::p_load(data.table, rads, rads.data, openxlsx) # Load list of packages
-options(max.print = 350) # Limit # of rows to show when printing/showing a data.frame
-options(tibble.print_max = 50) # Limit # of rows to show when printing/showing a tibble (a tidyverse-flavored data.frame)
-options(scipen = 999) # Avoid scientific notation
-origin <- "1970-01-01" # Set the origin date, which is needed for many data/time functions
-
-
-###### Vignette ######
+pacman::p_load(apde.data, data.table, dplyr, gh, gitcreds, ggplot2, ggrepel, ggthemes, keyring, lubridate, openxlsx, rads, rads.data, rstudioapi, sf, tidyverse, usethis)
 
 #CHARS functions allow you to retrieve and analyze CHARS observations by ICD and CCSR classifications.
 
 #let's start by pulling data and looking at what is returned.
 
-charsDT <- get_data_chars(year = 2021) #pull data from chars
+charsDT <- apde.data::chars(year = 2021) #pull data from chars
 
 dim(charsDT) # dimensions of the downloaded CHARS data.table object
 
@@ -74,21 +36,17 @@ classifications[broad == "Diseases of the digestive system",]$icdcm_code #this w
 #### getting CHARS counts ####
 
 mycode <- chars_icd_ccs_count(ph.data = charsDT, icdcm = 'I110') #using our data, charsDT, we can specify a valid icd code to display how many observations meet the code
-chars_icd_ccs_count(ph.data = charsDT)
-mycode
+print(mycode)
 
 mydesc <- chars_icd_ccs_count(ph.data = charsDT, icdcm = 'hypertensive heart disease with heart failure') #you can also use the description
-
-mydesc
+print(mydesc)
 
 broad <- chars_icd_ccs_count(ph.data = charsDT, broad = 'Diseases of the circulatory system') # and, similarly, by APDE's CCSR aligned broad descriptions
-
-broad
+print(broad)
 
 unique(classifications[broad == "Diseases of the circulatory system",]$detailed)
 
 ### listing injury options with  chars_injury_matrix() ###
-
 injuries <- chars_injury_matrix()
 
 injuries[1:10]
