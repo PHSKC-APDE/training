@@ -61,8 +61,6 @@ The below approach demonstrates how the analyst can achieve these goals while al
 
 ## Walkthrough of analysis plan as structure in quantitative project work
 
-
-
 ### Bakground
 
 Documents, through summary, references, and links, information critical for teh analyst and their collaborators to know about in order to understand and pursue the customer's needs. This is often information provided in an initial briefing with the customer and may also include slide decks, web pages, email threads, papers/reports, and prior work. 
@@ -91,7 +89,3 @@ C: Analysis to be conducted
 3: Results/Analysis
 
 Documents and, when ready, presents the deliverables to be sent to the customer. This section is normally very straightforward, listing each chart or table with any accompanying analysis notes. 
-
-# Documenting for your division
-
-# Documenting for your customers

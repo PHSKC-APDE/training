@@ -189,7 +189,6 @@ When using the same seed for distinct rounds, we would expect the resulting tabl
 ```{r}
 identical(DT.synthetic.data.s1000a, DT.synthetic.data.s1000b)
 
-data_modeler()
 ```
 
 Performance of the data typing heuristics can be adjusted by two parameters, "categorical_threshold" and "proportion_threshold". If you find something is being classified as a categorical when it should be free-text or continuous, or are finding the opposite, adjusting these thresholds might be helpful.
