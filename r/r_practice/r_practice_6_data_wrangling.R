@@ -1,24 +1,10 @@
-##RADS practice
-##Data wrangling##
-##Eli Kern, June 2023
+#RADS practice
+#Data wrangling##
+#Ronald Buie, 2026-06-01
 
-#### Setup ####
+pacman::p_load(apde.data, data.table, dplyr, gh, gitcreds, ggplot2, ggrepel, ggthemes, keyring, lubridate, Microsoft365R, openxlsx, rads, rads.data, rstudioapi, sf, spatagg, kcparcelpop, tidyverse, usethis)
 
-##Install RADS
-#remotes::install_github("PHSKC-APDE/rads", auth_token = NULL) #install RADS for the first time
-remotes::update_packages("rads") #update RADS if it is out of date
-
-##Load packages and set defaults
-pacman::p_load(tidyverse, rads, rads.data, openxlsx, data.table, lubridate, Microsoft365R) # Load list of packages
-options(max.print = 350) # Limit # of rows to show when printing/showing a data.frame
-options(tibble.print_max = 50) # Limit # of rows to show when printing/showing a tibble (a tidyverse-flavored data.frame)
-options(scipen = 999) # Avoid scientific notation
-origin <- "1970-01-01" # Set the origin date, which is needed for many data/time functions
-export_path <- "C:/Users/REPLACE WITH YOUR USER NAME/OneDrive - King County/" #replace with your desired path, use forward slashes
-
-##Set keyring for SharePoint account
-#keyring::key_set("sharepoint", username = "REPLACE TEXT WITH YOUR EMAIL ADDRESS") #Will prompt for password
-keyring::key_list()
+localPath <- dirname(rstudioapi::getActiveDocumentContext()$path) #getActiveDocumentContext pulls the full path of the script it is ran from. dirname extracts the directtory from a given path, removing the file name at the end. We save this to get the directory for this user/instance.
 
 ## Questions to answer using amusing, fake dataset:
   ## #1: Which manager is more productive?
@@ -35,7 +21,7 @@ myteam <- get_team(team_name = "DPH-APDETraining",
                    username = keyring::key_list("sharepoint")$username,
                    password = keyring::key_get("sharepoint", keyring::key_list("sharepoint")$username),
                    auth_type = "resource_owner",
-                   tenant = "kingcounty.gov")
+                   tenant = "KC1.onmicrosoft.com")
 
 ##Connect to drive (i.e., document library)
 myteam$list_drives() #lists all available document libraries
@@ -62,7 +48,7 @@ temp <- tempfile(fileext = ".xlsx") #Create temp file to hold contents of SP fil
 myteamfolder$get_item("apde_staff_expressions_1.xlsx")$download(dest = temp)
 
 ## Open Excel file in R
-test_file <- read_xlsx(
+test_file <- openxlsx::read.xlsx(
   xlsxFile = temp,
   sheet = "managers",
   colNames = TRUE,
@@ -83,16 +69,18 @@ rm(test_file, test_file_clean, temp)
 ## Okay, now apply to all files in folder
 compiled_files <- data.frame()  # Creates a blank data frame to use later
 for(x in fileslist) {
-  
-  print(paste0("Loading file: ", x)) #Print command to console to show files loaded
-  temp <- tempfile(fileext = ".xlsx") #Create temp file to hold contents of SP file
-  myteamfolder$get_item(x)$download(dest = temp)
-  
-  each_data_file <- read_xlsx(xlsxFile = temp,
-                              sheet = "managers",
-                              colNames = TRUE,
-                              detectDates = TRUE)
-  compiled_files <- bind_rows(compiled_files, each_data_file)
+
+  if(grepl(".xlsx", x) & grepl("apde_staff_",x)) {
+    print(paste0("Loading file: ", x)) #Print command to console to show files loaded
+    temp <- tempfile(fileext = ".xlsx") #Create temp file to hold contents of SP file
+    myteamfolder$get_item(x)$download(dest = temp)
+
+    each_data_file <- openxlsx::read.xlsx(xlsxFile = temp,
+                                sheet = "managers",
+                                colNames = TRUE,
+                                detectDates = TRUE)
+    compiled_files <- bind_rows(compiled_files, each_data_file)
+  }
 }
 rm(each_data_file, x, temp)
 
@@ -193,3 +181,4 @@ q3_result
 
 #Answer to our question: Eli mentioned food on average 4.5 times per day
 q3_result$total[q3_result$variable=="eli_food"] / q3_result$ndistinct[q3_result$variable=="date"]
+
