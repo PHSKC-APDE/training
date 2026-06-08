@@ -28,7 +28,7 @@ install.packages("pacman")
 
 ##Load (or install) packages used for exercises
 #Note that we will be using both tidyverse and data.table in these practice exercises
-pacman::p_load(apde.data, data.table, dplyr, gh, gitcreds, ggplot2, ggrepel, ggthemes, keyring, lubridate, Microsoft365R,openxlsx, rads, rads.data, rstudioapi, sf, spatagg, kcparcelpop, tidyverse, usethis)
+pacman::p_load(apde.data, colorspace, data.table, dplyr, kcparcelpop, gh, gitcreds, ggplot2, ggrepel, ggthemes, keyring, lubridate, openxlsx, rads, rads.data, RColorBrewer, rstudioapi, stringr, sf, spatagg,  tidyverse, usethis, viridisLite)
 
 ##Set defaults
 #options(max.print = 350, tibble.print_max = 50, scipen = 999) #these are popular with some people, for some reason...
