@@ -3,7 +3,7 @@
 #Ronald Buie, 2026-06-08
 
 #Load packages and set defaults
-pacman::p_load(apde.data, colorspace, data.table, dplyr, kcparcelpop,geojsonsf, gh, gitcreds, ggplot2, ggrepel, ggthemes, httr, jsonlite, keyring, lubridate, openxlsx, purrr, rads, rads.data, RColorBrewer, rstudioapi, stringr, sf, spatagg,  tidyverse, usethis, viridisLite)
+pacman::p_load(apde.data, colorspace, data.table, dplyr, kcparcelpop,geojsonsf, gh, gitcreds, ggplot2, ggrepel, ggthemes, httr, jsonlite, keyring, lubridate, openxlsx, purrr, rads, rads.data, RColorBrewer, rstudioapi, stringr, sf, spatagg,  tidyverse, usethis)
 
 #create a map of zip codes with populations
 
@@ -19,13 +19,12 @@ kcplus_zip_map <- geojsonsf::geojson_sf(gj_txt)  # extract and properly format d
 
 #merge populations into the zip code DT
 kcplus_zip_map <- merge(kcplus_zip_map, zip_pops, by.x = "ZIP", by.y = "geo_id", all.x = T)
-test <- kcplus_zip_map[kcplus_zip_map$COUNTY == "033",]
 
 #visual review
 ggplot(kcplus_zip_map) +
-  geom_sf(  size = 0.2, aes(fill = pop)) 
+  geom_sf(  size = 0.2, aes(fill = pop)) +
   coord_sf(datum = NA) +
-  guides(fill = "none") 
+  guides(fill = "none")
 
 #get maps of KC cities and unincorporated areas using API
 url <- "https://services.arcgis.com/Ej0PsM5Aw677QF1W/arcgis/rest/services/CITYDST_AREA_337/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson"
@@ -35,7 +34,24 @@ kc_city_map <- geojsonsf::geojson_sf(gj_txt)  # directly gets an sf data frame
 
 ggplot(kc_city_map) +
   geom_sf(  size = 0.2) +
-  coord_sf(datum = NA) 
+  coord_sf(datum = NA)
+
+kcplus_zip_map = kcplus_zip_map |>
+  st_transform(2926) |> # Convert to a western washington projection with units in survey feet (rather than decimal degrees)
+  spatagg::reduce_overlaps() # tries to clean up the polygons, and if that fails makes a series of very minor negative buffers to elimate polygons from overlapping each other
+kcplus_zip_map <- kcplus_zip_map |> group_by(ZIPCODE, pop) |> summarize() |> ungroup()
+
+
+kc_city_map = kc_city_map |>
+  st_transform(2926) |> # Convert to a western washington projection with units in survey feet (rather than decimal degrees)
+  spatagg::reduce_overlaps() # tries to clean up the polygons, and if that fails makes a series of very minor negative buffers to elimate polygons from overlapping each other
 
 #use spatagg to calculate the overlap of our zip code data (population) into our city geographies
-test <- create_xwalk(source = kcplus_zip_map, target = kc_city_map, source_id = "ZIPCODE", target_id = "NAME")
+test2 <- create_xwalk(source = kcplus_zip_map, target = kc_city_map, source_id = "ZIPCODE", target_id = "NAME",min_overlap = .03)
+
+crosswalk(kcplus_zip_map, source_id = "ZIPCODE", est = "pop", proportion = FALSE, xwalk_df = test2)
+
+
+#visual review
+ggplot(test2) +
+  geom_sf(  size = 0.2, aes(fill = pop))
