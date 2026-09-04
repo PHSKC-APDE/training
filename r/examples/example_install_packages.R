@@ -40,6 +40,7 @@ install.packages(c('broom',
                    'pdftools',
                    'plotly',
                    'purrr',
+                   'quarto',
                    'RColorBrewer',
                    'RCurl',
                    'readxl',
@@ -68,12 +69,11 @@ install.packages(c('broom',
 
 
 # Install Public PHSKC packages
-remotes::install_github("PHSKC-APDE/dtsurvey", auth_token = NULL)
 remotes::install_github("PHSKC-APDE/rads", auth_token = NULL)
-remotes::install_github("PHSKC-APDE/apde.etl", auth_token = NULL)
 remotes::install_github("PHSKC-APDE/claims_data")
 remotes::install_github('https://github.com/PHSKC-APDE/spatagg')
 remotes::install_github('https://github.com/PHSKC-APDE/kcparcelpop/')
+remotes::install_github("PHSKC-APDE/apde.etl", auth_token = NULL)
 
 # Install Private PHSKC packages
 message('\U0001f6a8\U1F6D1\U0001f6a8!!!\n',
